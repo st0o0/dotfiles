@@ -140,7 +140,7 @@ if (Test-Path $wtFile) {
             name              = $pName
             commandline       = "pwsh -NoProfile -NoExit -Command `"`$env:DOTFILES_SHELL='1'; . '$shellScript'; psmux new-session -A -s main`""
             startingDirectory = "%USERPROFILE%"
-            font              = [PSCustomObject]@{ face = "JetBrainsMono NFM" }
+            font              = [PSCustomObject]@{ face = "JetBrainsMono NF" }
             environment       = [PSCustomObject]@{ DOTFILES_SHELL = "1" }
         }
         $wt | ConvertTo-Json -Depth 10 | Set-Content $wtFile -Encoding UTF8
