@@ -1,4 +1,4 @@
-# Never accidentally add anything that looks like a secret
+# Never deploy secrets
 *id_rsa*
 *id_ed25519*
 *id_ansible*
@@ -8,10 +8,29 @@
 keys.txt
 .netrc
 
-# Profile-specific files — set via `.profile` data (workstation/server)
+# ── OS-specific filtering ───────────────────────────────────────────
+# On Windows, ignore Linux-only files
+{{- if eq .chezmoi.os "windows" }}
+.bash_aliases
+.bash_aliases.d/**
+.config/kitty/**
+.inputrc
+.local/bin/**
+.nanorc
+.tmux.conf
+.zshrc
+{{- end }}
+
+# On Linux/macOS, ignore Windows-only files
+{{- if ne .chezmoi.os "windows" }}
+Documents/PowerShell/**
+.psmux.conf
+{{- end }}
+
+# ── Profile-specific filtering (Linux only) ─────────────────────────
 {{- if eq .profile "server" }}
 .bash_aliases.d/40-workstation.sh
-.config/kitty/kitty.conf
+.config/kitty/**
 {{- end }}
 {{- if eq .profile "workstation" }}
 .bash_aliases.d/20-docker.sh
