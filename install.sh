@@ -13,13 +13,19 @@
 
 set -euo pipefail
 
-CHEZMOI_GITHUB_USER="st0o0"
+GITHUB_USER="st0o0"
+CHEZMOI_GITHUB_USER="${GITHUB_USER}"
+GITHUB_REPO="dotfiles"
 PROFILE="workstation"
 NERD_FONT="JetBrainsMono"
+VERSION=""
+SHOW_STATUS=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --profile) PROFILE="$2"; shift 2 ;;
+    --version) VERSION="$2"; shift 2 ;;
+    --status) SHOW_STATUS=true; shift ;;
     *) echo "error: unknown argument '$1'" >&2; exit 1 ;;
   esac
 done
@@ -30,6 +36,49 @@ case "${PROFILE}" in
 esac
 
 log() { printf '==> %s\n' "$1"; }
+
+VERSION_FILE="${HOME}/.dotfiles-version"
+
+get_latest_release() {
+  curl -fsSL "https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/releases/latest" \
+    | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p'
+}
+
+get_installed_version() {
+  if [[ -f "${VERSION_FILE}" ]]; then cat "${VERSION_FILE}"; else echo ""; fi
+}
+
+save_installed_version() { echo "$1" > "${VERSION_FILE}"; }
+
+if [[ "${SHOW_STATUS}" == true ]]; then
+  installed=$(get_installed_version)
+  latest=$(get_latest_release)
+  log "Installed: ${installed:-not installed}"
+  log "Latest:    ${latest}"
+  exit 0
+fi
+
+# Resolve version
+installed=$(get_installed_version)
+if [[ -z "${VERSION}" ]] || [[ "${VERSION}" == "latest" ]]; then
+  TARGET_VERSION=$(get_latest_release)
+  if [[ -z "${TARGET_VERSION}" ]]; then
+    log "Could not fetch latest release, using 'main'"
+    TARGET_VERSION="main"
+  fi
+else
+  TARGET_VERSION="${VERSION}"
+fi
+
+if [[ -n "${installed}" ]]; then
+  if [[ "${installed}" == "${TARGET_VERSION}" ]]; then
+    log "Already at ${TARGET_VERSION}"
+  else
+    log "Updating: ${installed} → ${TARGET_VERSION}"
+  fi
+else
+  log "Installing version: ${TARGET_VERSION}"
+fi
 
 log "profile: ${PROFILE}"
 
@@ -180,7 +229,10 @@ fi
 # ── 8. chezmoi init + apply ─────────────────────────────────────────
 
 log "running chezmoi init --apply (${PROFILE} profile)"
-chezmoi init --apply --no-tty --promptString "profile=${PROFILE}" "${CHEZMOI_GITHUB_USER}"
+BRANCH="${TARGET_VERSION}"
+chezmoi init --apply --no-tty --promptString "profile=${PROFILE}" --branch "${BRANCH}" "${CHEZMOI_GITHUB_USER}"
+
+save_installed_version "${TARGET_VERSION}"
 
 # ── 9. Clone repos (interactive, workstation only) ───────────────────
 
