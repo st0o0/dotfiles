@@ -135,10 +135,9 @@ if (Test-Path $wtFile) {
     $wt = Get-Content $wtFile -Raw | ConvertFrom-Json
     $pName = "Dotfiles (pwsh)"
     if (-not ($wt.profiles.list | Where-Object { $_.name -eq $pName })) {
-        $shellScript = Join-Path $env:USERPROFILE ".local/bin/dotfiles-shell.ps1"
         $wt.profiles.list += [PSCustomObject]@{
             name              = $pName
-            commandline       = "pwsh -NoProfile -NoExit -Command `". '$shellScript'`""
+            commandline       = "psmux new-session -A -s main"
             startingDirectory = "%USERPROFILE%"
             font              = [PSCustomObject]@{ face = "JetBrainsMono NFM" }
         }

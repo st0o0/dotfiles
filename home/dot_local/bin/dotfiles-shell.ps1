@@ -1,10 +1,7 @@
-# Dotfiles shell — launched by the "Dotfiles (pwsh)" Windows Terminal profile.
-# Does NOT touch $PROFILE. Loads Starship, zoxide, fzf, PSReadLine tuning,
-# then attaches to psmux.
+# Dotfiles shell — sourced by psmux's default-shell.
+# Does NOT touch $PROFILE. Loads Starship, zoxide, fzf, PSReadLine tuning.
 
 # ── PATH refresh ────────────────────────────────────────────────────
-# -NoProfile skips profile scripts that might refresh PATH. Ensure tools
-# installed via winget (starship, zoxide, fzf, psmux) are found.
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
 
 # ── PSReadLine ──────────────────────────────────────────────────────
@@ -28,9 +25,4 @@ if (Get-Command starship -ErrorAction SilentlyContinue) {
 # ── zoxide (fuzzy cd) ──────────────────────────────────────────────
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
     Invoke-Expression (& zoxide init powershell | Out-String)
-}
-
-# ── psmux auto-attach ───────────────────────────────────────────────
-if (-not $env:TMUX -and -not $env:PSMUX -and (Get-Command psmux -ErrorAction SilentlyContinue)) {
-    psmux new-session -A -s main
 }
