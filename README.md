@@ -1,93 +1,70 @@
 # dotfiles
 
-Personal machine setup, managed with [chezmoi](https://www.chezmoi.io).
-One command per OS — same shell experience everywhere.
+Cross-platform dotfiles managed by [chezmoi](https://chezmoi.io/).
+Catppuccin Mocha theme, Powerline-style status bar and prompt.
 
-## Getting Started
+| | Linux/macOS | Windows |
+|---|---|---|
+| Shell | zsh + oh-my-zsh | PowerShell 7 + PSReadLine |
+| Multiplexer | tmux | psmux |
+| Prompt | Starship | Starship |
+| Fuzzy finder | fzf + fzf-tab | fzf + PSFzf |
+| Fuzzy cd | zoxide | zoxide |
 
-### Linux / macOS
+## Install
+
+**Linux/macOS:**
 
 ```bash
 curl -fsLS https://raw.githubusercontent.com/st0o0/dotfiles/main/install.sh | bash
 ```
 
-### Windows
+**Windows (PowerShell):**
 
 ```powershell
 irm https://raw.githubusercontent.com/st0o0/dotfiles/main/install.ps1 | iex
 ```
 
-Installs [MSYS2](https://www.msys2.org) with the full shell toolchain,
-adds a "MSYS2 (zsh)" profile to Windows Terminal, and installs
-JetBrainsMono Nerd Font. No VM, no reboot.
-
-### Server (called by Ansible, not by hand)
+### Version selection
 
 ```bash
-curl -fsLS https://raw.githubusercontent.com/st0o0/dotfiles/main/install.sh | bash -s -- --profile server
+# Install specific version
+./install.sh --version v1.2.0
+
+# Check installed vs latest
+./install.sh --status
+
+# Upgrade to latest
+./install.sh --version latest
 ```
 
-Both scripts are idempotent — safe to re-run at any time.
+```powershell
+# Windows equivalents
+.\install.ps1 -Version v1.2.0
+.\install.ps1 -Status
+.\install.ps1 -Version latest
+```
 
-## What gets installed
+## Structure
 
-| Tool | Linux | macOS | Windows (MSYS2) | server | Source |
-|---|---|---|---|---|---|
-| git | yes | yes | yes | yes | apt / brew / pacman |
-| zsh | yes | yes | yes | yes | apt / brew / pacman |
-| tmux | yes | yes | yes | yes | apt / brew / pacman |
-| chezmoi | yes | yes | yes | yes | get.chezmoi.io / brew |
-| starship | yes | yes | yes | yes | starship.rs installer |
-| zoxide | yes | yes | yes | yes | official installer / pacman |
-| fzf | yes | yes | yes | yes | apt / brew / pacman |
-| kitty | yes | yes | — | — | official installer / brew |
-| Nerd Font | yes | yes | yes | — | GitHub release / brew cask / winget |
-| Login shell → zsh | yes | yes | yes | yes | usermod / chsh / /etc/passwd |
-| oh-my-zsh + plugins | yes | yes | yes | yes | chezmoi externals |
+```
+.chezmoiroot → home/
+home/           chezmoi source (cross-platform dotfiles)
+install.sh      Linux/macOS bootstrap
+install.ps1     Windows bootstrap
+```
 
-## Installation hierarchy
-
-`install.sh` is the **single source of truth** for the shell toolchain.
-Everything else calls it instead of reimplementing:
-
-| Target | How it gets the shell toolchain |
-|---|---|
-| Bare workstation | `install.sh` or `install.ps1` |
-| DevContainer | [homelab-ansible](https://github.com/st0o0/homelab-ansible)'s `install-dependencies.sh` calls `install.sh --profile workstation` |
-| Ansible server | [homelab-ansible](https://github.com/st0o0/homelab-ansible)'s `dotfiles` role calls `install.sh --profile server` |
-
-Tool versions and install logic are maintained in one place.
-`.zshrc` falls back gracefully if a tool isn't on `PATH` yet (e.g.
-`starship`, `gpgconf`, `zoxide`).
+Platform-specific files are filtered via `.chezmoiignore` using
+`{{ .chezmoi.os }}`. Linux configs (zsh, tmux, kitty) are ignored on
+Windows; Windows configs (PowerShell profile, psmux) are ignored on Linux.
 
 ## Profiles
 
-This repo serves two kinds of machines, controlled by a `profile` data
-value (`workstation` or `server`) in `~/.config/chezmoi/chezmoi.toml`:
+Linux/macOS supports two profiles:
 
-- **workstation**: Kitty config, `ssh2` alias, repo shortcuts, startup banner
-- **server**: docker/compose aliases, `/docker` stack shortcuts, Ansible-managed MOTD
-
-Both profiles get oh-my-zsh with plugins (fzf-tab, autosuggestions,
-syntax-highlighting), starship prompt, and tmux auto-attach.
-
-Shared across both: `.tmux.conf`, `.zshrc`, `starship.toml`, `.gitconfig`,
-`.nanorc`, `.inputrc`, general aliases (`ll`, `..`, `update`).
-
-`.tmux.conf` uses a different prefix per profile — `C-b` on workstation,
-`C-n` on server — so nested tmux sessions over SSH don't collide.
-
-## Making changes
+- **workstation** (default): Full setup with kitty, fzf, Nerd Font
+- **server**: Minimal setup, different tmux prefix (C-n)
 
 ```bash
-chezmoi edit ~/.bash_aliases.d/10-general.sh   # edit through chezmoi
-chezmoi diff                                   # see what would change
-chezmoi apply                                  # apply changes to $HOME
-chezmoi add ~/.some_config                     # add a new file
+./install.sh --profile server
 ```
-
-## Rule: nothing sensitive goes in here
-
-No private keys, no `.netrc`, no tokens — this repo is **public**. See
-`.chezmoiignore` for the guardrail patterns. Actual secrets belong in
-Bitwarden.
