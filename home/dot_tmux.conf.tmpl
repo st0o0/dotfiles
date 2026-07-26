@@ -40,9 +40,10 @@ setw -g pane-base-index 1
 set -g history-limit 10000
 set -sg escape-time 10
 
-# True color support (matches TERM=xterm-256color set by Kitty et al.)
+# True color support
 set -g default-terminal "tmux-256color"
-set -ag terminal-overrides ",xterm-256color:RGB,tmux-256color:RGB"
+set -ag terminal-overrides ",*256col*:Tc,tmux-256color:Tc"
+set -as terminal-features ",xterm-256color:RGB,tmux-256color:RGB"
 
 # Pass modified arrow/nav keys (Ctrl+←/→, Shift+←/→, Ctrl+Home/End, ...)
 # through to the program running inside the pane as their normal xterm CSI
