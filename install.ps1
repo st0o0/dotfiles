@@ -138,9 +138,9 @@ if (Test-Path $wtFile) {
         $shellScript = Join-Path $env:USERPROFILE ".local/bin/dotfiles-shell.ps1"
         $wt.profiles.list += [PSCustomObject]@{
             name              = $pName
-            commandline       = "pwsh -NoProfile -NoExit -File `"$shellScript`""
+            commandline       = "pwsh -NoProfile -NoExit -Command `". '$shellScript'`""
             startingDirectory = "%USERPROFILE%"
-            font              = [PSCustomObject]@{ face = "JetBrainsMono Nerd Font Mono" }
+            font              = [PSCustomObject]@{ face = "JetBrainsMono NFM" }
         }
         $wt | ConvertTo-Json -Depth 10 | Set-Content $wtFile -Encoding UTF8
         Log "Added '$pName' profile to Windows Terminal"
