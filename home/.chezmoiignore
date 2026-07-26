@@ -9,13 +9,16 @@ keys.txt
 .netrc
 
 # ── OS-specific filtering ───────────────────────────────────────────
-# On Windows, ignore Linux-only files
+# On Windows, ignore Linux-only files (keep .local/bin/dotfiles-shell.ps1)
 {{- if eq .chezmoi.os "windows" }}
 .bash_aliases
 .bash_aliases.d/**
 .config/kitty/**
 .inputrc
-.local/bin/**
+.local/bin/install-cli-tools.sh
+.local/bin/uninstall-cli-tools.sh
+.local/bin/tmux-statusbar.sh
+.local/bin/zsh-banner.sh
 .nanorc
 .tmux.conf
 .zshrc
@@ -23,7 +26,7 @@ keys.txt
 
 # On Linux/macOS, ignore Windows-only files
 {{- if ne .chezmoi.os "windows" }}
-Documents/PowerShell/**
+.local/bin/dotfiles-shell.ps1
 .psmux.conf
 {{- end }}
 

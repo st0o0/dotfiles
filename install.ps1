@@ -127,7 +127,31 @@ if ($LASTEXITCODE -ne 0) { Write-Error "chezmoi init --apply failed (exit code $
 
 Save-InstalledVersion $targetVersion
 
+# ── Windows Terminal profile ────────────────────────────────────────
+$wtFile = "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
+if (Test-Path $wtFile) {
+    Log "Configuring Windows Terminal..."
+    Copy-Item $wtFile "$wtFile.bak" -Force
+    $wt = Get-Content $wtFile -Raw | ConvertFrom-Json
+    $pName = "Dotfiles (pwsh)"
+    if (-not ($wt.profiles.list | Where-Object { $_.name -eq $pName })) {
+        $shellScript = Join-Path $env:USERPROFILE ".local/bin/dotfiles-shell.ps1"
+        $wt.profiles.list += [PSCustomObject]@{
+            name              = $pName
+            commandline       = "pwsh -NoProfile -NoExit -File `"$shellScript`""
+            startingDirectory = "%USERPROFILE%"
+            font              = [PSCustomObject]@{ face = "JetBrainsMono Nerd Font Mono" }
+        }
+        $wt | ConvertTo-Json -Depth 10 | Set-Content $wtFile -Encoding UTF8
+        Log "Added '$pName' profile to Windows Terminal"
+    } else {
+        Log "Windows Terminal profile already exists"
+    }
+} else {
+    Log "Windows Terminal not found — start manually:"
+    Log "  pwsh -NoProfile -NoExit -File ~/.local/bin/dotfiles-shell.ps1"
+}
+
 # ── Summary ─────────────────────────────────────────────────────────
 Log "Done! Version $targetVersion installed."
-Log "Restart your terminal to pick up the new PowerShell profile."
-Log "Then run: psmux new-session -s main"
+Log "Open 'Dotfiles (pwsh)' in Windows Terminal."
