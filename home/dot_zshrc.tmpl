@@ -1,0 +1,109 @@
+# Managed by chezmoi — applies on every profile (workstation + server).
+
+# Needed before anything below that shells out to a tool living here
+# (starship, chezmoi itself, ...). Must come first: exec'ing into this file
+# from a non-login shell (see the bash→zsh hop in .bash_aliases) means
+# ~/.zprofile never ran, so PATH may not have this yet.
+export PATH="$HOME/.local/bin:$PATH"
+
+# Auto-attach to a persistent tmux session for interactive shells. Together
+# with the bash→zsh hop in .bash_aliases, this is the single choke point
+# that makes tmux(+zsh) the default CLI everywhere (host, remote servers,
+# devcontainers) without needing to change the account's login shell.
+# Opt out with NO_AUTOSTART=1 (e.g. for a throwaway plain shell).
+if [ -z "$NO_AUTOSTART" ] && [ -z "$TMUX" ] && [ "$TERM" != "dumb" ] \
+    && [[ $- == *i* ]] && command -v tmux >/dev/null 2>&1; then
+    exec tmux new-session -A -s main
+fi
+
+# History
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=10000
+SAVEHIST=10000
+setopt SHARE_HISTORY HIST_IGNORE_DUPS HIST_IGNORE_SPACE
+
+# Completion
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
+
+# Cache completion results instead of rebuilding them every startup — more
+# noticeable now that oh-my-zsh's compinit has more fpath entries to scan.
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/compcache"
+
+# oh-my-zsh — sourced purely for its plugin loader and compinit.
+# Starship renders the prompt (eval below), so the theme is disabled.
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME=""
+DISABLE_AUTO_UPDATE="true"
+zstyle ':omz:update' mode disabled
+plugins=(
+    git
+    docker
+    docker-compose
+    sudo
+    colored-man-pages
+    fzf-tab
+    zsh-autosuggestions
+    zsh-syntax-highlighting
+)
+source "$ZSH/oh-my-zsh.sh"
+
+# Word-wise navigation/deletion for Ctrl/Shift+Left/Right/Delete/Backspace.
+# Plain zsh has no default binding for these — the terminal sends a CSI
+# sequence like `\e[1;5C` (Ctrl+Right) that self-inserts as garbage (e.g. a
+# trailing "5C") if nothing claims it. zle has no visual selection, so
+# Shift+arrow is bound the same as Ctrl+arrow (word movement) rather than
+# doing nothing. Sequences are the standard xterm modifyOtherKeys encoding
+# (2=Shift, 5=Ctrl) — what Kitty, and tmux with `xterm-keys on`, both send.
+bindkey '^[[1;5C' forward-word
+bindkey '^[[1;5D' backward-word
+bindkey '^[[1;2C' forward-word
+bindkey '^[[1;2D' backward-word
+bindkey '^[[3;5~' kill-word          # Ctrl+Delete
+
+# Reuse the same alias groups as bash — profile-gated via .chezmoiignore
+# in the dotfiles source repo.
+[ -f "$HOME/.bash_aliases" ] && . "$HOME/.bash_aliases"
+
+# GPG/SSH — SSH auth is routed through gpg-agent, so this must be set for
+# ssh/git over SSH to work in this shell (mirrors the same lines in .bashrc).
+# Guarded: servers/containers may not have gpg installed.
+if command -v gpgconf >/dev/null 2>&1; then
+    export GPG_TTY=$(tty)
+    export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+fi
+
+# Prompt
+if command -v starship >/dev/null 2>&1; then
+    eval "$(starship init zsh)"
+fi
+
+# zoxide: frecency-based `cd` replacement (`z <fuzzy dir>`)
+if command -v zoxide >/dev/null 2>&1; then
+    eval "$(zoxide init zsh)"
+fi
+
+{{- if eq .profile "workstation" }}
+# Compact tmux cheat-sheet banner (zsh-banner.sh) — shown once per freshly
+# created tmux session, not on every reattach or extra pane/window. Gated
+# on being window 1 pane 1 with nothing else open yet: that's the exact
+# shape of a session right after `tmux new-session`, and it stops holding
+# true the moment you open a second pane or window, so it can't spam you.
+# Workstation only — servers get the full Ansible-managed MOTD on SSH
+# login instead (homelab-ansible repo, roles/motd), so a second banner
+# here would just be noise.
+if [ -n "$TMUX" ] \
+    && [ "$(tmux display-message -p '#{session_windows}')" = "1" ] \
+    && [ "$(tmux display-message -p '#{window_panes}')" = "1" ] \
+    && command -v zsh-banner.sh >/dev/null 2>&1; then
+    zsh-banner.sh "C-b"
+fi
+{{- end }}
+
+# Window/tmux-pane title: hostname:current-dir, so multiple SSH sessions
+# across tmux windows are distinguishable at a glance.
+function set_win_title(){
+    echo -ne "\033]0;${HOST%%.*}:$(basename "$PWD")\007"
+}
+precmd_functions+=(set_win_title)

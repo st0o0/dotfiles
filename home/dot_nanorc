@@ -1,0 +1,12 @@
+# Managed by chezmoi — applies on every profile
+
+set linenumbers
+set softwrap
+set tabsize 4
+set autoindent
+set constantshow
+set mouse
+
+include "/usr/share/nano/*.nanorc"
+include "/opt/homebrew/share/nano/*.nanorc"
+include "/usr/local/share/nano/*.nanorc"

@@ -1,0 +1,162 @@
+# Managed by chezmoi — applies on every profile (workstation + server).
+# Portable on purpose: nothing here assumes a specific host.
+
+# tmux's default-shell is normally whatever $SHELL was in the environment
+# of the process that first started the tmux *server*, cached for that
+# server's entire lifetime — it does NOT re-read /etc/passwd, so a chsh
+# done after the server is already running (e.g. postCreateCommand chsh'ing
+# to zsh while VS Code Server, which spawns the server, was started earlier
+# with SHELL=bash) leaves every pane on bash no matter which terminal
+# profile you open. Pin it explicitly instead of relying on env inheritance.
+# Only on workstation profile: server-profile hosts aren't guaranteed zsh.
+{{- if eq .profile "workstation" }}
+{{- $zsh := lookPath "zsh" }}
+{{- if hasPrefix "C:" $zsh }}
+set -g default-shell "/usr/bin/zsh"
+{{- else }}
+set -g default-shell "{{ $zsh }}"
+{{- end }}
+{{- end }}
+
+# Prefix: C-b on workstation (tmux default), C-n on servers. Different keys
+# per profile mean a local tmux session and a nested remote one (auto-started
+# over SSH via .zshrc) never fight over the same prefix — no double-tap
+# send-prefix gymnastics needed to reach the inner session. C-n rather than
+# C-v: C-v is a near-universal paste shortcut, and prefix+n (next-window)
+# is a two-key sequence anyway, so raw C-n being free by tmux default was
+# the deciding factor.
+{{- if eq .profile "server" }}
+unbind C-b
+set -g prefix C-n
+bind C-n send-prefix
+{{- end }}
+
+# Reload config in place (no session/window/pane loss — same tmux server
+# process, just re-reads the file) instead of typing out
+# `source-file ~/.tmux.conf` by hand every time this file changes.
+# Overrides the default prefix+r (refresh-client, a rarely-needed forced
+# terminal redraw) — this is the far more common use for that key.
+bind r source-file ~/.tmux.conf \; display-message "tmux.conf reloaded"
+
+set -g mouse on
+set -g mode-keys vi
+set -g base-index 1
+setw -g pane-base-index 1
+set -g history-limit 10000
+set -sg escape-time 10
+
+# True color support (matches TERM=xterm-256color set by Kitty et al.)
+set -g default-terminal "tmux-256color"
+set -ag terminal-overrides ",xterm-256color:RGB"
+
+# Pass modified arrow/nav keys (Ctrl+←/→, Shift+←/→, Ctrl+Home/End, ...)
+# through to the program running inside the pane as their normal xterm CSI
+# sequences, instead of tmux's own legacy encoding that most shells/editors
+# don't recognize. Without this, e.g. Ctrl+Left in zsh doesn't move by word
+# — it just dumps the tail of the raw escape sequence onto the command line.
+set -g xterm-keys on
+
+# ── Clipboard ────────────────────────────────────────────────────────────
+# Copy in copy-mode (mouse drag or `y`/Enter in vi mode) sends the selection
+# to the *outer* terminal via an OSC 52 escape sequence instead of piping to
+# a local tool like wl-copy/xclip. This needs no clipboard binary at all, so
+# it works identically local (kitty), over SSH into a remote tmux, and
+# inside a VS Code devcontainer terminal (xterm.js honors OSC 52 too) — the
+# terminal that actually owns the OS clipboard is always the one that
+# receives the sequence, no matter how many tmux/ssh hops are in between.
+# Requires clipboard_control to allow writes in kitty.conf (already set).
+set -s set-clipboard on
+
+# Releasing the mouse after a drag-selection normally copies immediately.
+# Mouse bindings live in tmux's base "copy-mode" table regardless of
+# mode-keys, so both that table and copy-mode-vi need the override — keep
+# the selection highlighted instead and only copy on an explicit action,
+# Ctrl-c or right-click, so an accidental drag doesn't overwrite the clipboard.
+unbind -T copy-mode MouseDragEnd1Pane
+unbind -T copy-mode-vi MouseDragEnd1Pane
+bind-key -T copy-mode C-c send-keys -X copy-selection-and-cancel
+bind-key -T copy-mode-vi C-c send-keys -X copy-selection-and-cancel
+
+# Ctrl-v pastes tmux's own paste-buffer directly, instead of relying on
+# the outer terminal's paste shortcut (e.g. kitty's ctrl+shift+v, which
+# doesn't exist the same way in every terminal/SSH client). Since Ctrl-c
+# above already fills this buffer, paste works identically everywhere
+# tmux runs. Note: this steals Ctrl-v from any program that wants it
+# directly (e.g. Vim's visual-block mode) — remap that in Vim if needed.
+# Safe to bind unconditionally on both profiles: the prefix key (C-b
+# workstation, C-n server) never overlaps with C-v.
+bind-key -n C-v paste-buffer
+bind-key -T copy-mode MouseDown3Pane send-keys -X copy-selection-and-cancel
+bind-key -T copy-mode-vi MouseDown3Pane send-keys -X copy-selection-and-cancel
+
+# Scroll wheel uses tmux's own copy-mode scrollback (the tmux default when
+# mouse is on) rather than passing through to the outer terminal's native
+# scrollback. Native scrollback only exists for the *normal* screen buffer
+# — the alternate screen tmux draws on has none at all in most emulators,
+# including VS Code's xterm.js (upstream issue: xtermjs/xterm.js#3607) —
+# and forcing tmux off the alternate screen (`smcup@:rmcup@`) to get at it
+# pollutes that scrollback with full-redraw duplicates on every window
+# switch/resize, which shows up as garbage appended to copy-mode
+# selections. tmux's own copy-mode scrollback has neither problem and
+# behaves identically in Kitty, over SSH, and in a devcontainer.
+
+# ── Status bar — Catppuccin Mocha colors, Powerline-arrow capsule style ──
+# Every segment (session, each window, right-side modules) is its own
+# pill, capped with classic Powerline arrows. Needs a Nerd Font in your
+# terminal (e.g. "JetBrainsMono Nerd Font Mono") for the arrow caps and
+# icons to render — without one they show as boxes/‍?.
+#
+# Catppuccin Mocha palette used below:
+#   base    #1e1e2e   text     #cdd6f4   surface0 #313244   surface2 #585b70
+#   mauve   #cba6f7   blue     #89b4fa   green    #a6e3a1   subtext0 #a6adc8
+
+set -g status-position bottom
+set -g status-interval 5
+set -g status-style "bg=#1e1e2e,fg=#cdd6f4"
+
+# Left: session name as a mauve pill
+set -g status-left-length 30
+set -g status-left "#[fg=#cba6f7,bg=default]#[fg=#1e1e2e,bg=#cba6f7,bold] #S #[fg=#cba6f7,bg=#313244]"
+
+# Window list — every window is its own pill: muted surface color when
+# inactive, blue when active. The trailing checkmark is set by a Claude
+# Code Stop hook (~/.claude/settings.json) when Claude finishes in a
+# window you're not looking at; cleared once you switch to that window.
+set -g window-status-separator ""
+setw -g window-status-format "#[fg=#a6adc8,bg=#313244] #I:#W#[fg=#a6e3a1]#{?#(test -f /tmp/.claude-tmux-done/#{window_id} && echo 1), ✓,} #{?window_end_flag,#[fg=#313244]#[bg=default],}"
+setw -g window-status-current-format "#[fg=#313244,bg=#fab387]#[fg=#1e1e2e,bg=#fab387,bold] #I:#W #{?window_end_flag,#[fg=#fab387]#[bg=default],#[fg=#fab387]#[bg=#313244]}"
+set-hook -g after-select-window "run-shell \"rm -f /tmp/.claude-tmux-done/#{window_id}\""
+
+# Prefix indicator — a flat profile icon (desktop/server — desktop instead of
+# the thinner laptop glyph used elsewhere, since that one rendered too small to
+# read at a glance). Went through a few iterations: icon+letter (spacing can't
+# go below one full terminal cell), a circled-letter glyph alone (illegible in
+# most terminal fonts), plain bold letter alone (legible but lost the "which
+# profile" context) — landed on icon-only since the profile alone already
+# implies the prefix key (workstation always C-b, server always C-n). It's a
+# lavender Powerline pill that turns red while the prefix is actually held, for
+# feedback — and it's the first link of the status chain: its colour is handed
+# to tmux-statusbar.sh (last arg) so the script's first capsule seams straight
+# into it instead of getting its own opening cap. Lives directly in
+# status-right (not in the script) because #{client_prefix} needs to update
+# immediately; a #(script) segment only re-runs on status-interval (5s) and
+# would lag behind the keypress.
+#
+# Each color/attribute is its own #{?client_prefix,...} nested *inside* a
+# single-attribute #[...] tag (fg=, bg=, bold separately) rather than one
+# #{?cond,a,b} wrapping a whole comma-joined "fg=X,bg=Y,bold" style string:
+# #{?cond,a,b} splits its own arguments on literal commas and doesn't know
+# #[...] is a style tag, so commas *inside* one leak out and get mistaken for
+# the true/false boundary, corrupting the whole expression.
+{{- if eq .profile "server" }}
+set -g status-right "#[fg=#{?client_prefix,#f38ba8,#b4befe}]#[bg=default]#[fg=#1e1e2e]#[bg=#{?client_prefix,#f38ba8,#b4befe}]#[bold]  #[nobold]#(tmux-statusbar.sh '#{pane_current_path}' '#{client_width}' '#{session_name}' '#{W:#I:#{window_name} }' 'server' '#{?client_prefix,#f38ba8,#b4befe}')"
+{{- else }}
+set -g status-right "#[fg=#{?client_prefix,#f38ba8,#b4befe}]#[bg=default]#[fg=#1e1e2e]#[bg=#{?client_prefix,#f38ba8,#b4befe}]#[bold]  #[nobold]#(tmux-statusbar.sh '#{pane_current_path}' '#{client_width}' '#{session_name}' '#{W:#I:#{window_name} }' 'workstation' '#{?client_prefix,#f38ba8,#b4befe}')"
+{{- end }}
+
+# Right, after the prefix indicator: hostname (only when this tmux server
+# was started over SSH) → git branch → cwd → load average → uptime
+# (server profile only) → battery (if present) → date (workstation profile
+# only) → time, rendered by tmux-statusbar.sh (must be on PATH — installed
+# to ~/.local/bin) as static-colour Powerline capsules.
+set -g status-right-length 150

@@ -1,0 +1,12 @@
+# Managed by chezmoi — applies on every profile
+
+# Arrow-up/down search history by what's already typed, instead of
+# cycling through everything chronologically
+"\e[A": history-search-backward
+"\e[B": history-search-forward
+
+# Case-insensitive tab completion
+set completion-ignore-case on
+
+# Show all completions immediately instead of ringing the bell first
+set show-all-if-ambiguous on

@@ -1,0 +1,19 @@
+# Managed by chezmoi — global gitignore, applies on every profile
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+*.swp
+*~
+.vscode/
+.idea/
+
+# Env / secrets — never commit these regardless of project .gitignore
+.env
+.env.local
+*.pem
+*.key
+
+**/.claude/settings.local.json

@@ -1,0 +1,16 @@
+# Managed by chezmoi. Individual alias groups live in ~/.bash_aliases.d/ —
+# which ones apply depends on the chezmoi profile (workstation/server),
+# see .chezmoiignore in the dotfiles source repo.
+
+# Hop into zsh for interactive bash shells (which then hops into tmux via
+# .zshrc). This makes zsh+tmux the default CLI everywhere these dotfiles
+# apply — including environments (e.g. devcontainers) whose default account
+# shell is bash — without needing chsh/root. Opt out with NO_AUTOSTART=1.
+if [ -z "$NO_AUTOSTART" ] && [ -z "$ZSH_VERSION" ] && [ -z "$TMUX" ] \
+    && [ "$TERM" != "dumb" ] && [[ $- == *i* ]] && command -v zsh >/dev/null 2>&1; then
+    exec zsh
+fi
+
+for f in "$HOME/.bash_aliases.d/"*.sh; do
+    [ -f "$f" ] && . "$f"
+done

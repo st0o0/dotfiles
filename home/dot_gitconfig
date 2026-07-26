@@ -1,0 +1,15 @@
+# Managed by chezmoi — applies on every profile
+
+[user]
+	name = st0o0
+	email = 64534642+st0o0@users.noreply.github.com
+
+[alias]
+	lg = log --oneline --graph --decorate
+	co = checkout
+
+[core]
+	excludesfile = ~/.gitignore_global
+
+[init]
+	defaultBranch = main
