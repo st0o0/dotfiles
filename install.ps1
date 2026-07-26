@@ -135,20 +135,46 @@ if (Test-Path $wtFile) {
     $wt = Get-Content $wtFile -Raw | ConvertFrom-Json
     $pName = "Dotfiles (pwsh)"
     if (-not ($wt.profiles.list | Where-Object { $_.name -eq $pName })) {
+        $shellScript = Join-Path $env:USERPROFILE ".local\bin\dotfiles-shell.ps1"
         $wt.profiles.list += [PSCustomObject]@{
             name              = $pName
-            commandline       = "psmux new-session -A -s main"
+            commandline       = "pwsh -NoProfile -NoExit -Command `"`$env:DOTFILES_SHELL='1'; . '$shellScript'; psmux new-session -A -s main`""
             startingDirectory = "%USERPROFILE%"
             font              = [PSCustomObject]@{ face = "JetBrainsMono NFM" }
+            environment       = [PSCustomObject]@{ DOTFILES_SHELL = "1" }
         }
         $wt | ConvertTo-Json -Depth 10 | Set-Content $wtFile -Encoding UTF8
         Log "Added '$pName' profile to Windows Terminal"
     } else {
         Log "Windows Terminal profile already exists"
     }
+}
+
+# ── $PROFILE hook ──────────────────────────────────────────────────
+$profilePath = $PROFILE.CurrentUserCurrentHost
+if (Test-Path $profilePath) {
+    $content = Get-Content $profilePath -Raw
+    if ($content -notmatch 'DOTFILES_SHELL') {
+        Log "Adding dotfiles hook to `$PROFILE..."
+        Add-Content -Path $profilePath -Value @'
+
+# Dotfiles shell — only loads when DOTFILES_SHELL env var is set (via WT profile)
+if ($env:DOTFILES_SHELL -and (Test-Path "$HOME\.local\bin\dotfiles-shell.ps1")) {
+    . "$HOME\.local\bin\dotfiles-shell.ps1"
+}
+'@
+    } else {
+        Log "Dotfiles hook already in `$PROFILE"
+    }
 } else {
-    Log "Windows Terminal not found — start manually:"
-    Log "  pwsh -NoProfile -NoExit -File ~/.local/bin/dotfiles-shell.ps1"
+    Log "Creating `$PROFILE with dotfiles hook..."
+    New-Item -ItemType File -Path $profilePath -Force | Out-Null
+    Set-Content -Path $profilePath -Value @'
+# Dotfiles shell — only loads when DOTFILES_SHELL env var is set (via WT profile)
+if ($env:DOTFILES_SHELL -and (Test-Path "$HOME\.local\bin\dotfiles-shell.ps1")) {
+    . "$HOME\.local\bin\dotfiles-shell.ps1"
+}
+'@
 }
 
 # ── Summary ─────────────────────────────────────────────────────────
