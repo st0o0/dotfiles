@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: wagoid/commitlint-github-action@v6
+
+  chezmoi-lint-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        profile: [workstation, server]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install chezmoi
+        run: sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ./bin
+      - name: chezmoi init + diff
+        run: |
+          ./bin/chezmoi init --no-tty --promptString "profile=${{ matrix.profile }}" .
+          ./bin/chezmoi diff --no-tty || true
+
+  chezmoi-lint-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install chezmoi
+        run: winget install -e --id twpayne.chezmoi --accept-package-agreements --accept-source-agreements
+      - name: Refresh PATH
+        run: |
+          $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+          chezmoi init --no-tty --promptString "profile=workstation" .
+          chezmoi diff --no-tty
+        shell: pwsh
