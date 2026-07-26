@@ -129,14 +129,20 @@ min_time = 2000
 style = "bg:teal fg:crust"
 format = "[ $duration ]($style)"
 
+{{- if ne .chezmoi.os "windows" }}
 [custom.sudo]
 command = "echo ⚡"
 when = "sudo -n true"
 style = "bg:teal fg:crust"
 format = "[ $output ]($style)"
+{{- end }}
 
 [custom.date]
+{{- if eq .chezmoi.os "windows" }}
+command = 'powershell -NoProfile -Command "(Get-Date).ToString(\"dd.MM\")"'
+{{- else }}
 command = "date +%d.%m"
+{{- end }}
 when = true
 style = "bg:blue fg:crust"
 format = "[ $output ]($style)"

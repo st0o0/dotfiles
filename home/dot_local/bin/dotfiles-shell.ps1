@@ -27,7 +27,7 @@ if (Get-Command starship -ErrorAction SilentlyContinue) {
 
 # ── zoxide (fuzzy cd) ──────────────────────────────────────────────
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
-    Invoke-Expression (& zoxide init powershell)
+    Invoke-Expression (& zoxide init powershell | Out-String)
 }
 
 # ── psmux auto-attach ───────────────────────────────────────────────
