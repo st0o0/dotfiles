@@ -15,6 +15,7 @@ if (Get-Module -ListAvailable -Name PSFzf) {
 }
 
 if (Get-Command starship -ErrorAction SilentlyContinue) {
+    $env:STARSHIP_CONFIG = "$HOME\.local\share\starship\windows.toml"
     Invoke-Expression (&starship init powershell)
 }
 

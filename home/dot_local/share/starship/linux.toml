@@ -1,0 +1,172 @@
+palette = "catppuccin_mocha"
+
+format = """
+[](fg:red)\
+$os\
+$username\
+$hostname\
+[](bg:peach fg:red)\
+$directory\
+[](bg:green fg:peach)\
+$git_branch\
+$git_metrics\
+$git_status\
+[](fg:green)\
+$fill\
+[](fg:teal bg:base)\
+$cmd_duration\
+$container\
+${custom.sudo}\
+[](bg:teal fg:blue)\
+${custom.date}\
+[](bg:blue fg:lavender)\
+$time\
+[](fg:lavender bg:base)\
+$line_break$character"""
+
+add_newline = true
+
+[palettes.catppuccin_mocha]
+rosewater = "#f5e0dc"
+flamingo = "#f2cdcd"
+pink = "#f5c2e7"
+mauve = "#cba6f7"
+red = "#f38ba8"
+maroon = "#eba0ac"
+peach = "#fab387"
+yellow = "#f9e2af"
+green = "#a6e3a1"
+teal = "#94e2d5"
+sky = "#89dceb"
+sapphire = "#74c7ec"
+blue = "#89b4fa"
+lavender = "#b4befe"
+text = "#cdd6f4"
+subtext1 = "#bac2de"
+subtext0 = "#a6adc8"
+overlay2 = "#9399b2"
+overlay1 = "#7f849c"
+overlay0 = "#6c7086"
+surface2 = "#585b70"
+surface1 = "#45475a"
+surface0 = "#313244"
+base = "#1e1e2e"
+mantle = "#181825"
+crust = "#11111b"
+
+[fill]
+symbol = " "
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+vimcmd_symbol = "[❮](bold mauve)"
+
+[os]
+disabled = false
+style = "bg:red fg:crust"
+format = "[$symbol]($style)"
+
+[username]
+show_always = false
+style_user = "bg:red fg:crust"
+style_root = "bg:red fg:crust"
+format = "[ 🧙 ]($style)"
+
+[hostname]
+ssh_only = true
+style = "bg:red fg:crust"
+format = "[ $hostname ]($style)"
+
+[directory]
+style = "bg:peach fg:crust"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncate_to_repo = true
+
+[git_branch]
+symbol = "🌿 "
+style = "bg:green fg:crust"
+format = "[ $symbol$branch ]($style)"
+
+[git_status]
+style = "bg:green fg:crust"
+format = "([ $all_status$ahead_behind ]($style))"
+
+[git_metrics]
+disabled = false
+added_style = "fg:crust bg:green"
+deleted_style = "fg:crust bg:green"
+format = "([+$added]($added_style)[/](fg:crust bg:green)[-$deleted ]($deleted_style))"
+
+[container]
+disabled = false
+symbol = "📦"
+style = "bg:teal fg:crust"
+format = "[ $symbol ]($style)"
+
+[cmd_duration]
+min_time = 2000
+style = "bg:teal fg:crust"
+format = "[ $duration ]($style)"
+
+[custom.sudo]
+command = "echo ⚡"
+when = "sudo -n true"
+style = "bg:teal fg:crust"
+format = "[ $output ]($style)"
+
+[custom.date]
+command = "date +%d.%m"
+when = true
+style = "bg:blue fg:crust"
+format = "[ $output ]($style)"
+
+[time]
+disabled = false
+time_format = "%R"
+style = "bg:lavender fg:crust"
+format = "[ $time ]($style)"
+
+[profiles]
+claude-code = "$claude_model$claude_context$claude_cost"
+
+[claude_model]
+format = "[$symbol$model]($style) "
+symbol = "🤖 "
+style = "bold blue"
+
+[claude_context]
+format = "[$gauge $percentage]($style) "
+gauge_width = 10
+gauge_full_symbol = "█"
+gauge_partial_symbol = "▒"
+gauge_empty_symbol = "░"
+
+[[claude_context.display]]
+threshold = 30
+style = "bold green"
+
+[[claude_context.display]]
+threshold = 60
+style = "bold yellow"
+
+[[claude_context.display]]
+threshold = 80
+style = "bold red"
+
+[claude_cost]
+format = "[$symbol(\$$cost)]($style) "
+symbol = "💰 "
+
+[[claude_cost.display]]
+threshold = 0.0
+hidden = true
+
+[[claude_cost.display]]
+threshold = 1.0
+style = "bold yellow"
+
+[[claude_cost.display]]
+threshold = 5.0
+style = "bold red"

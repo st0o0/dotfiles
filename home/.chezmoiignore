@@ -19,6 +19,7 @@ keys.txt
 .local/bin/uninstall-cli-tools.sh
 .local/bin/tmux-statusbar.sh
 .local/bin/zsh-banner.sh
+.local/share/starship/linux.toml
 .nanorc
 .tmux.conf
 .zshrc
@@ -27,6 +28,7 @@ keys.txt
 # On Linux/macOS, ignore Windows-only files
 {{- if ne .chezmoi.os "windows" }}
 .local/bin/dotfiles-shell.ps1
+.local/share/starship/windows.toml
 .psmux.conf
 {{- end }}
 
