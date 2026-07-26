@@ -1,46 +1,28 @@
 # Managed by chezmoi — applies on every profile (workstation + server).
 # Catppuccin Mocha colors, matching the tmux status bar (see dot_tmux.conf).
-# Each segment has a fixed static colour (os/host red, directory peach, git
-# green, system teal, date blue, time lavender). Git's working-tree state is
-# folded into the green git capsule as compact symbols in the same dark text
-# colour as the branch (git_status: + staged, ! modified, ? untracked,
-# ⇡/⇣ ahead/behind), mirroring the tmux status bar.
-#
-# Interlocking-chain layout (Powerline-style): modules are bundled into
-# color groups, with a single shared seam glyph at each group boundary
-# instead of each module having its own open/close caps. Groups anchored
-# on both sides by an always-rendering module (os, directory, time)
-# are fully safe. The Git Branch+Metrics group and the git_status module are
-# each independently optional — if exactly one of them renders while its
-# neighbor doesn't, a small seam-color artifact can appear. This matches
-# the accepted behavior of the reference configs this design is based on
-# (Russ McKendrick's dotfiles, the official `catppuccin-powerline` preset)
-# and is a deliberate trade-off, not a bug to chase further.
 
 palette = "catppuccin_mocha"
 
 format = """
-[](fg:red)\
+[](fg:red)\
 $os\
 $username\
 $hostname\
-[](bg:peach fg:red)\
+[](bg:peach fg:red)\
 $directory\
-[](bg:green fg:peach)\
+[](bg:green fg:peach)\
 $git_branch\
 $git_metrics\
 $git_status\
-[](fg:green)\
+[](fg:green)\
 $fill\
-[](fg:teal bg:base)\
+[](fg:teal bg:base)\
 $cmd_duration\
 $container\
 ${custom.sudo}\
-[](bg:teal fg:blue)\
-${custom.date}\
-[](bg:blue fg:lavender)\
+[](bg:teal fg:blue)\
 $time\
-[](fg:lavender bg:base)\
+[](fg:blue bg:base)\
 $line_break$character"""
 
 add_newline = true
@@ -135,22 +117,22 @@ command = "echo ⚡"
 when = "sudo -n true"
 style = "bg:teal fg:crust"
 format = "[ $output ]($style)"
-{{- end }}
 
 [custom.date]
-{{- if eq .chezmoi.os "windows" }}
-command = 'powershell -NoProfile -Command "(Get-Date).ToString(\"dd.MM\")"'
-{{- else }}
 command = "date +%d.%m"
-{{- end }}
 when = true
 style = "bg:blue fg:crust"
 format = "[ $output ]($style)"
+{{- end }}
 
 [time]
 disabled = false
+{{- if eq .chezmoi.os "windows" }}
+time_format = "%d.%m  %H:%M"
+{{- else }}
 time_format = "%R"
-style = "bg:lavender fg:crust"
+{{- end }}
+style = "bg:blue fg:crust"
 format = "[ $time ]($style)"
 
 [profiles]
