@@ -10,12 +10,7 @@
 # profile you open. Pin it explicitly instead of relying on env inheritance.
 # Only on workstation profile: server-profile hosts aren't guaranteed zsh.
 {{- if eq .profile "workstation" }}
-{{- $zsh := lookPath "zsh" }}
-{{- if hasPrefix "C:" $zsh }}
-set -g default-shell "/usr/bin/zsh"
-{{- else }}
-set -g default-shell "{{ $zsh }}"
-{{- end }}
+set -g default-shell "{{ lookPath "zsh" }}"
 {{- end }}
 
 # Prefix: C-b on workstation (tmux default), C-n on servers. Different keys
