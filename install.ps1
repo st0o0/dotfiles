@@ -10,6 +10,7 @@
   .\install.ps1 -Status
   irm https://raw.githubusercontent.com/st0o0/dotfiles/main/install.ps1 | iex
 #>
+#Requires -Version 7
 [CmdletBinding()]
 param(
     [string]$Version,
@@ -84,6 +85,7 @@ foreach ($tool in $tools) {
     } else {
         Log "Installing $($tool.Name)..."
         winget install -e --id $tool.Id --accept-package-agreements --accept-source-agreements
+        if ($LASTEXITCODE -ne 0) { Write-Error "Failed to install $($tool.Name) (winget exit code $LASTEXITCODE)" }
     }
 }
 
@@ -103,6 +105,7 @@ if ($fontFound) {
 } elseif (Get-Command winget -ErrorAction SilentlyContinue) {
     Log "Installing JetBrainsMono Nerd Font..."
     winget install -e --id DEVCOM.JetBrainsMonoNerdFont --accept-package-agreements --accept-source-agreements
+    if ($LASTEXITCODE -ne 0) { Write-Error "Failed to install JetBrainsMono Nerd Font (winget exit code $LASTEXITCODE)" }
 } else {
     Log "Install manually: winget install -e --id DEVCOM.JetBrainsMonoNerdFont"
 }
@@ -110,15 +113,17 @@ if ($fontFound) {
 # ── PSFzf module ───────────────────────────────────────────────────
 if (-not (Get-Module -ListAvailable -Name PSFzf)) {
     Log "Installing PSFzf module..."
+    Set-PSRepository -Name PSGallery -InstallationPolicy Trusted -ErrorAction SilentlyContinue
     Install-Module -Name PSFzf -Scope CurrentUser -Force
 } else {
     Log "PSFzf: already installed"
 }
 
 # ── chezmoi init + apply ───────────────────────────────────────────
-$branch = if ($targetVersion -eq "main") { "main" } else { $targetVersion }
+$branch = $targetVersion
 Log "Applying dotfiles ($branch)..."
 chezmoi init --apply --no-tty --promptString "profile=workstation" --branch $branch $GITHUB_USER
+if ($LASTEXITCODE -ne 0) { Write-Error "chezmoi init --apply failed (exit code $LASTEXITCODE)" }
 
 Save-InstalledVersion $targetVersion
 
