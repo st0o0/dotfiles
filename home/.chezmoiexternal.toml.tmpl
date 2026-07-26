@@ -1,3 +1,4 @@
+{{- if ne .chezmoi.os "windows" }}
 # oh-my-zsh + plugins — cloned as git repos, refreshed weekly.
 # chezmoi keeps them updated on `chezmoi apply`.
 
@@ -20,3 +21,4 @@
     type = "git-repo"
     url = "https://github.com/Aloxaf/fzf-tab.git"
     refreshPeriod = "168h"
+{{- end }}
