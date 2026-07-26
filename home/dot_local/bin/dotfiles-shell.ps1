@@ -2,6 +2,11 @@
 # Does NOT touch $PROFILE. Loads Starship, zoxide, fzf, PSReadLine tuning,
 # then attaches to psmux.
 
+# ── PATH refresh ────────────────────────────────────────────────────
+# -NoProfile skips profile scripts that might refresh PATH. Ensure tools
+# installed via winget (starship, zoxide, fzf, psmux) are found.
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
+
 # ── PSReadLine ──────────────────────────────────────────────────────
 Set-PSReadLineOption -PredictionSource History
 Set-PSReadLineOption -PredictionViewStyle ListView
