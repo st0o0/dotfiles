@@ -36,3 +36,4 @@ clh() {
 # socket path (gpgconf --list-dirs agent-ssh-socket, exported above/in
 # .bashrc). Modern equivalent of `gpg-connect-agent killagent /bye`.
 alias reload='gpgconf --kill gpg-agent'
+

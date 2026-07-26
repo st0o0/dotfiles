@@ -40,10 +40,10 @@ setw -g pane-base-index 1
 set -g history-limit 10000
 set -sg escape-time 10
 
-# True color support
+# True color support — Tc enables 24-bit color for any connecting terminal,
+# including nested tmux-over-SSH where TERM=tmux-256color.
 set -g default-terminal "tmux-256color"
-set -ag terminal-overrides ",*256col*:Tc,tmux-256color:Tc"
-set -as terminal-features ",xterm-256color:RGB,tmux-256color:RGB"
+set -sa terminal-overrides ",*:Tc"
 
 # Pass modified arrow/nav keys (Ctrl+←/→, Shift+←/→, Ctrl+Home/End, ...)
 # through to the program running inside the pane as their normal xterm CSI
