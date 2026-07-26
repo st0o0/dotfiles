@@ -27,6 +27,7 @@ keys.txt
 # On Linux/macOS, ignore Windows-only files
 {{- if ne .chezmoi.os "windows" }}
 .local/bin/dotfiles-shell.ps1
+.local/bin/dotfiles-pwsh.cmd
 .psmux.conf
 {{- end }}
 
