@@ -22,34 +22,28 @@ HOST_SHORT=$(hostname -s)
 BANNER=$(figlet -f small "$HOST_SHORT" 2>/dev/null || echo "  $HOST_SHORT")
 
 hdr() {
-  local label="$1" right="${2:-}"
-  local w=55 pre="─── " dashes=""
-  if [ -n "$right" ]; then
-    local suf=" ${right} ───"
-    local n=$(( w - ${#pre} - ${#label} - 1 - ${#suf} ))
-    [ "$n" -lt 3 ] && n=3
-    printf -v dashes '%*s' "$n" ''; dashes="${dashes// /─}"
-    echo -e "${MAUVE}${pre}${label} ${dashes}${OVERLAY}${suf}${R}"
-  else
-    local n=$(( w - ${#pre} - ${#label} - 1 ))
-    [ "$n" -lt 3 ] && n=3
-    printf -v dashes '%*s' "$n" ''; dashes="${dashes// /─}"
-    echo -e "${MAUVE}${pre}${label} ${dashes}${R}"
-  fi
+  local label="$1" w=55 pre="─── " dashes=""
+  local n=$(( w - ${#pre} - ${#label} - 1 ))
+  [ "$n" -lt 3 ] && n=3
+  printf -v dashes '%*s' "$n" ''; dashes="${dashes// /─}"
+  echo -e "${MAUVE}${pre}${label} ${dashes}${R}"
 }
 
 echo ""
 echo -e "${LAVENDER}${BOLD}${BANNER}${R}"
 
-# tmux
+# tmux — Armbian-style label: value pairs
 echo ""
-hdr "󰓫 tmux" "prefix: ${PREFIX}"
-echo -e "  ${GREEN}% · \"${R}  ${SUBTEXT}split${R}   ${GREEN}← → ↑ ↓${R}  ${SUBTEXT}pane${R}   ${GREEN}c${R}  ${SUBTEXT}window${R}   ${GREEN}n · p${R}  ${SUBTEXT}next/prev${R}"
-echo -e "  ${GREEN}[${R}  ${SUBTEXT}copy mode (vi, y yanks)${R}   ${GREEN}d${R}  ${SUBTEXT}detach${R}"
+hdr "tmux (${PREFIX})"
+echo ""
+printf "  ${SUBTEXT}%-14s${R}${GREEN}%s${R}\t${SUBTEXT}%-10s${R}${GREEN}%s${R}\n" "Split:" "% · \"" "Pane:" "← → ↑ ↓"
+printf "  ${SUBTEXT}%-14s${R}${GREEN}%s${R}\t${SUBTEXT}%-10s${R}${GREEN}%s${R}\n" "Window:" "c · n · p" "Copy:" "[ (vi, y)"
+printf "  ${SUBTEXT}%-14s${R}${GREEN}%s${R}\n" "Detach:" "d"
 
 # Aliases
 echo ""
-hdr "󰘳 Aliases"
+hdr "Aliases"
+echo ""
 echo -e "  ${GREEN}dots${R}${OVERLAY}·${R}${GREEN}ha${R}${OVERLAY}·${R}${GREEN}hc${R}  ${OVERLAY}cd repos${R}   ${GREEN}ssh2${R}  ${OVERLAY}kitty ssh${R}   ${GREEN}sync-dotfiles${R}${OVERLAY}·${R}${GREEN}update-omz${R}  ${OVERLAY}sync${R}"
 echo -e "  ${GREEN}banner${R}${OVERLAY}·${R}${GREEN}clh${R}${OVERLAY}·${R}${GREEN}tidy${R}${OVERLAY}·${R}${GREEN}reload${R}  ${OVERLAY}system maintenance${R}"
 echo ""
