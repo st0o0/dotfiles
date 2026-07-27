@@ -25,46 +25,41 @@ curl -fsLS https://raw.githubusercontent.com/st0o0/dotfiles/main/install.sh | ba
 irm https://raw.githubusercontent.com/st0o0/dotfiles/main/install.ps1 | iex
 ```
 
-### Version selection
+### Profiles
+
+Linux/macOS supports two profiles:
+
+- **workstation** (default): Full setup with kitty, Nerd Font, extra aliases
+- **server**: Minimal setup, different tmux prefix (C-n)
 
 ```bash
-# Install specific version
-./install.sh --version v1.2.0
+# Standalone
+./install.sh --profile server
 
-# Check installed vs latest
-./install.sh --status
-
-# Upgrade to latest
-./install.sh --version latest
+# Via Ansible (pre-seeds chezmoi config, no install.sh needed)
 ```
 
-```powershell
-# Windows equivalents
-.\install.ps1 -Version v1.2.0
-.\install.ps1 -Status
-.\install.ps1 -Version latest
-```
+### What happens
+
+`install.sh` bootstraps system packages (git, curl, zsh, tmux) and
+chezmoi, then runs `chezmoi init --apply` which handles everything else:
+
+- **Dotfiles** applied via chezmoi templates (profile-aware)
+- **CLI tools** (starship, zoxide, fzf) installed via `run_once_before` scripts to `~/.local/bin`
+- **oh-my-zsh + plugins** cloned via `.chezmoiexternal`
+
+Re-running is safe — every step is idempotent.
 
 ## Structure
 
 ```
 .chezmoiroot → home/
-home/           chezmoi source (cross-platform dotfiles)
-install.sh      Linux/macOS bootstrap
-install.ps1     Windows bootstrap
+home/                   chezmoi source (cross-platform dotfiles)
+home/.chezmoiscripts/   run_once scripts for tool installation
+install.sh              Linux/macOS bootstrap
+install.ps1             Windows bootstrap
 ```
 
 Platform-specific files are filtered via `.chezmoiignore` using
 `{{ .chezmoi.os }}`. Linux configs (zsh, tmux, kitty) are ignored on
 Windows; Windows configs (PowerShell profile, psmux) are ignored on Linux.
-
-## Profiles
-
-Linux/macOS supports two profiles:
-
-- **workstation** (default): Full setup with kitty, fzf, Nerd Font
-- **server**: Minimal setup, different tmux prefix (C-n)
-
-```bash
-./install.sh --profile server
-```
