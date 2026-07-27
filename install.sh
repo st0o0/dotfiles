@@ -40,7 +40,7 @@ log() { printf '==> %s\n' "$1"; }
 VERSION_FILE="${HOME}/.dotfiles-version"
 
 get_latest_release() {
-  curl -fsSL "https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/releases/latest" \
+  curl -sSL "https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/releases/latest" 2>/dev/null \
     | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p'
 }
 

@@ -45,6 +45,7 @@ set -sg escape-time 10
 # including nested tmux-over-SSH where TERM=tmux-256color.
 set -g default-terminal "tmux-256color"
 set -sa terminal-overrides ",*:Tc"
+set -as terminal-features ",xterm*:mouse"
 
 # Pass modified arrow/nav keys (Ctrl+←/→, Shift+←/→, Ctrl+Home/End, ...)
 # through to the program running inside the pane as their normal xterm CSI
