@@ -134,20 +134,56 @@ if (Test-Path $wtFile) {
     Copy-Item $wtFile "$wtFile.bak" -Force
     $wt = Get-Content $wtFile -Raw | ConvertFrom-Json
     $pName = "Dotfiles (pwsh)"
+    $schemeName = "Catppuccin Mocha"
+
+    # Catppuccin Mocha scheme — mirrors kitty.conf's palette. Without this,
+    # the profile falls back to Windows Terminal's global default scheme
+    # (not Catppuccin), so any status-bar/prompt segment using bg:base or
+    # bg=default (transparent, relying on the terminal's own background)
+    # renders a mismatched-color box instead of blending in.
+    $scheme = [ordered]@{
+        name                = $schemeName
+        background          = "#1E1E2E"
+        foreground          = "#CDD6F4"
+        black               = "#45475A"
+        red                 = "#F38BA8"
+        green               = "#A6E3A1"
+        yellow              = "#F9E2AF"
+        blue                = "#89B4FA"
+        purple              = "#F5C2E7"
+        cyan                = "#94E2D5"
+        white               = "#BAC2DE"
+        brightBlack         = "#585B70"
+        brightRed           = "#F38BA8"
+        brightGreen         = "#A6E3A1"
+        brightYellow        = "#F9E2AF"
+        brightBlue          = "#89B4FA"
+        brightPurple        = "#F5C2E7"
+        brightCyan          = "#94E2D5"
+        brightWhite         = "#A6ADC8"
+        cursorColor         = "#F5E0DC"
+        selectionBackground = "#F5E0DC"
+    }
+    if (-not ($wt.schemes | Where-Object { $_.name -eq $schemeName })) {
+        $wt.schemes = @($wt.schemes) + [PSCustomObject]$scheme
+    }
+
     if (-not ($wt.profiles.list | Where-Object { $_.name -eq $pName })) {
         $shellScript = Join-Path $env:USERPROFILE ".local\bin\dotfiles-shell.ps1"
         $wt.profiles.list += [PSCustomObject]@{
             name              = $pName
             commandline       = "pwsh -NoProfile -NoExit -Command `"`$env:DOTFILES_SHELL='1'; . '$shellScript'; psmux new-session -A -s main`""
             startingDirectory = "%USERPROFILE%"
-            font              = [PSCustomObject]@{ face = "JetBrainsMono NF" }
+            font              = [PSCustomObject]@{ face = "JetBrainsMono NFM" }
+            colorScheme       = $schemeName
             environment       = [PSCustomObject]@{ DOTFILES_SHELL = "1" }
         }
-        $wt | ConvertTo-Json -Depth 10 | Set-Content $wtFile -Encoding UTF8
         Log "Added '$pName' profile to Windows Terminal"
     } else {
+        ($wt.profiles.list | Where-Object { $_.name -eq $pName }) | Add-Member -NotePropertyName colorScheme -NotePropertyValue $schemeName -Force
         Log "Windows Terminal profile already exists"
     }
+    $wt | ConvertTo-Json -Depth 10 | Set-Content $wtFile -Encoding UTF8
 }
 
 # ── $PROFILE hook ──────────────────────────────────────────────────

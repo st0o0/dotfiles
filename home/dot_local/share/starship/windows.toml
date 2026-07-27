@@ -62,22 +62,22 @@ vimcmd_symbol = "[❮](bold mauve)"
 [os]
 disabled = false
 style = "bg:red fg:crust"
-format = "[$symbol]($style)"
+format = "[ $symbol]($style)"
 
 [username]
 show_always = false
 style_user = "bg:red fg:crust"
 style_root = "bg:red fg:crust"
-format = "[ 🧙 ]($style)"
+format = "[🧙 ]($style)"
 
 [hostname]
 ssh_only = true
 style = "bg:red fg:crust"
-format = "[ $hostname ]($style)"
+format = "[$hostname ]($style)"
 
 [directory]
 style = "bg:peach fg:crust"
-format = "[ $path ]($style)"
+format = "[$path ]($style)"
 truncation_length = 3
 truncate_to_repo = true
 
