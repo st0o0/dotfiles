@@ -156,7 +156,7 @@ threshold = 80
 style = "bold red"
 
 [claude_cost]
-format = "[$symbol(\$$cost)]($style) "
+format = '[$symbol(\$$cost)]($style) '
 symbol = "💰 "
 
 [[claude_cost.display]]
