@@ -168,20 +168,43 @@ if (Test-Path $wtFile) {
         $wt.schemes = @($wt.schemes) + [PSCustomObject]$scheme
     }
 
+    # adjustIndistinguishableColors must be "never" for Powerline prompts.
+    # When it's on ("always", or "indexed" for non-RGB colors), Windows Terminal
+    # darkens a foreground colour it considers too close to its background so
+    # that *text* stays readable. A Powerline capsule chain breaks that
+    # assumption: the arrow glyph's foreground IS the previous segment's fill
+    # and its background IS the next segment's fill, and adjacent pastel
+    # segments (e.g. Catppuccin red #f38ba8 on peach #fab387) are similar by
+    # design — so Terminal "fixes" them into muddy dark colours (#670530,
+    # #6a2f00) and every seam looks wrong. Only low-contrast seams are hit,
+    # which is why the tmux/psmux status bar (bright pills on dark surface0)
+    # looks fine while the starship prompt doesn't, and why kitty/mintty —
+    # which have no such feature — render both correctly.
+    $profileSettings = @{
+        font                          = [PSCustomObject]@{ face = "JetBrainsMono NFM" }
+        colorScheme                   = $schemeName
+        adjustIndistinguishableColors = "never"
+    }
+
     if (-not ($wt.profiles.list | Where-Object { $_.name -eq $pName })) {
         $shellScript = Join-Path $env:USERPROFILE ".local\bin\dotfiles-shell.ps1"
-        $wt.profiles.list += [PSCustomObject]@{
+        $newProfile = [PSCustomObject]@{
             name              = $pName
             commandline       = "pwsh -NoProfile -NoExit -Command `"`$env:DOTFILES_SHELL='1'; . '$shellScript'; psmux new-session -A -s main`""
             startingDirectory = "%USERPROFILE%"
-            font              = [PSCustomObject]@{ face = "JetBrainsMono NFM" }
-            colorScheme       = $schemeName
             environment       = [PSCustomObject]@{ DOTFILES_SHELL = "1" }
         }
+        foreach ($k in $profileSettings.Keys) {
+            $newProfile | Add-Member -NotePropertyName $k -NotePropertyValue $profileSettings[$k] -Force
+        }
+        $wt.profiles.list += $newProfile
         Log "Added '$pName' profile to Windows Terminal"
     } else {
-        ($wt.profiles.list | Where-Object { $_.name -eq $pName }) | Add-Member -NotePropertyName colorScheme -NotePropertyValue $schemeName -Force
-        Log "Windows Terminal profile already exists"
+        $existing = $wt.profiles.list | Where-Object { $_.name -eq $pName }
+        foreach ($k in $profileSettings.Keys) {
+            $existing | Add-Member -NotePropertyName $k -NotePropertyValue $profileSettings[$k] -Force
+        }
+        Log "Windows Terminal profile already exists — refreshed appearance settings"
     }
     $wt | ConvertTo-Json -Depth 10 | Set-Content $wtFile -Encoding UTF8
 }

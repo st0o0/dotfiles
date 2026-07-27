@@ -3,12 +3,6 @@
 
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
 
-# Force full ANSI passthrough for prompt rendering — PowerShell auto-detects
-# this and can land on "PlainText" depending on how it probes the console,
-# which would mangle truecolor escape sequences (starship, psmux) instead of
-# passing them straight through.
-$PSStyle.OutputRendering = 'Ansi'
-
 Set-PSReadLineOption -PredictionSource History
 Set-PSReadLineOption -PredictionViewStyle ListView
 Set-PSReadLineOption -HistorySearchCursorMovesToEnd
