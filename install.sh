@@ -8,6 +8,7 @@
 # Usage:
 #   ./install.sh                          # workstation (default)
 #   ./install.sh --profile server         # server (no kitty/fzf/font)
+#   ./install.sh --profile devcontainer   # devcontainer (no status bar, no keybindings)
 #   curl -fsLS https://raw.githubusercontent.com/st0o0/dotfiles/main/install.sh | bash
 #   curl -fsLS https://raw.githubusercontent.com/st0o0/dotfiles/main/install.sh | bash -s -- --profile server
 
@@ -24,7 +25,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 case "${PROFILE}" in
-  workstation|server) ;;
+  workstation|server|devcontainer) ;;
   *) echo "error: profile must be 'workstation' or 'server', got '${PROFILE}'" >&2; exit 1 ;;
 esac
 

@@ -1,4 +1,4 @@
-# Managed by chezmoi — applies on every profile (workstation + server).
+# Managed by chezmoi — applies on every profile (workstation + server + devcontainer).
 
 # Needed before anything below that shells out to a tool living here
 # (starship, chezmoi itself, ...). Must come first: exec'ing into this file
@@ -85,22 +85,15 @@ if command -v zoxide >/dev/null 2>&1; then
     eval "$(zoxide init zsh)"
 fi
 
-{{- if eq .profile "workstation" }}
-# Compact tmux cheat-sheet banner (zsh-banner.sh) — shown once per freshly
-# created tmux session, not on every reattach or extra pane/window. Gated
-# on being window 1 pane 1 with nothing else open yet: that's the exact
-# shape of a session right after `tmux new-session`, and it stops holding
-# true the moment you open a second pane or window, so it can't spam you.
-# Workstation only — servers get the full Ansible-managed MOTD on SSH
-# login instead (homelab-ansible repo, roles/motd), so a second banner
-# here would just be noise.
 if [ -n "$TMUX" ] \
     && [ "$(tmux display-message -p '#{session_windows}')" = "1" ] \
-    && [ "$(tmux display-message -p '#{window_panes}')" = "1" ] \
-    && command -v zsh-banner.sh >/dev/null 2>&1; then
-    zsh-banner.sh "C-b"
-fi
+    && [ "$(tmux display-message -p '#{window_panes}')" = "1" ]; then
+{{- if eq .profile "workstation" }}
+    command -v zsh-banner.sh >/dev/null 2>&1 && zsh-banner.sh "C-b"
+{{- else if eq .profile "server" }}
+    [ -x /usr/local/sbin/homelab-motd ] && /usr/local/sbin/homelab-motd
 {{- end }}
+fi
 
 # Window/tmux-pane title: hostname:current-dir, so multiple SSH sessions
 # across tmux windows are distinguishable at a glance.
