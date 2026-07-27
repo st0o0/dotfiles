@@ -7,7 +7,7 @@
 
 set -u
 
-PREFIX="${1:-C-y}"
+PREFIX="${1:-C-Space}"
 
 # --- Catppuccin Mocha palette ------------------------------------------------
 MAUVE='\e[38;2;203;166;247m'

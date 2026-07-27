@@ -101,7 +101,7 @@ banner() {
     if [ -x /usr/local/sbin/homelab-motd ]; then
         /usr/local/sbin/homelab-motd
     elif command -v zsh-banner.sh >/dev/null 2>&1; then
-        zsh-banner.sh "${TMUX_PREFIX:-C-y}"
+        zsh-banner.sh "${TMUX_PREFIX:-C-Space}"
     else
         echo "no banner script found"
     fi

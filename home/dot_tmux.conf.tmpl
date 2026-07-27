@@ -25,16 +25,15 @@ set -g status off
 set -g default-shell "{{ lookPath "zsh" }}"
 {{- end }}
 
-# Prefix: C-y on workstation, C-x on servers. Different keys per profile
-# mean a local tmux session and a nested remote one (auto-started over SSH
-# via .zshrc) never fight over the same prefix.
-unbind C-b
+# Prefix: C-Space on workstation, C-b (default) on servers. Different keys
+# per profile mean a local tmux session and a nested remote one never fight
+# over the same prefix.
 {{- if eq .profile "server" }}
-set -g prefix C-x
-bind C-x send-prefix
+# Server keeps default C-b
 {{- else }}
-set -g prefix C-y
-bind C-y send-prefix
+unbind C-b
+set -g prefix C-Space
+bind C-Space send-prefix
 {{- end }}
 
 # Reload config in place (no session/window/pane loss — same tmux server
@@ -92,8 +91,8 @@ bind-key -T copy-mode-vi C-c send-keys -X copy-selection-and-cancel
 # above already fills this buffer, paste works identically everywhere
 # tmux runs. Note: this steals Ctrl-v from any program that wants it
 # directly (e.g. Vim's visual-block mode) — remap that in Vim if needed.
-# Safe to bind unconditionally on both profiles: the prefix key (C-y
-# workstation, C-x server) never overlaps with C-v.
+# Safe to bind unconditionally on both profiles: the prefix key (C-Space
+# workstation, C-b server) never overlaps with C-v.
 bind-key -n C-v paste-buffer
 bind-key -T copy-mode MouseDown3Pane send-keys -X copy-selection-and-cancel
 bind-key -T copy-mode-vi MouseDown3Pane send-keys -X copy-selection-and-cancel
@@ -142,7 +141,7 @@ set-hook -g after-select-window "run-shell \"rm -f /tmp/.claude-tmux-done/#{wind
 # go below one full terminal cell), a circled-letter glyph alone (illegible in
 # most terminal fonts), plain bold letter alone (legible but lost the "which
 # profile" context) — landed on icon-only since the profile alone already
-# implies the prefix key (workstation always C-y, server always C-x). It's a
+# implies the prefix key (workstation C-Space, server C-b). It's a
 # lavender Powerline pill that turns red while the prefix is actually held, for
 # feedback — and it's the first link of the status chain: its colour is handed
 # to tmux-statusbar.sh (last arg) so the script's first capsule seams straight

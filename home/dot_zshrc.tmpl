@@ -89,7 +89,7 @@ if [ -n "$TMUX" ] \
     && [ "$(tmux display-message -p '#{session_windows}')" = "1" ] \
     && [ "$(tmux display-message -p '#{window_panes}')" = "1" ]; then
 {{- if eq .profile "workstation" }}
-    command -v zsh-banner.sh >/dev/null 2>&1 && zsh-banner.sh "C-y"
+    command -v zsh-banner.sh >/dev/null 2>&1 && zsh-banner.sh "C-Space"
 {{- else if eq .profile "server" }}
     [ -x /usr/local/sbin/homelab-motd ] && /usr/local/sbin/homelab-motd
 {{- end }}
