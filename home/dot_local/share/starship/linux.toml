@@ -72,12 +72,12 @@ format = "[ $symbol]($style)"
 show_always = false
 style_user = "bg:red fg:crust"
 style_root = "bg:red fg:crust"
-format = "[🧙]($style)"
+format = "[🧙 ]($style)"
 
 [hostname]
 ssh_only = true
 style = "bg:red fg:crust"
-format = "[$hostname ]($style)"
+format = "[$hostname  ]($style)"
 
 [directory]
 style = "bg:peach fg:crust"
