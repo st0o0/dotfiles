@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/st0o0/dotfiles/compare/v0.1.0...v0.1.1) (2026-07-27)
+
+
+### Bug Fixes
+
+* avoid sudo in install.sh when already root ([f16c707](https://github.com/st0o0/dotfiles/commit/f16c70737dc81f5efd5b2ec450e9774bb28ce003))
+
 ## 0.1.0 (2026-07-27)
 
 
