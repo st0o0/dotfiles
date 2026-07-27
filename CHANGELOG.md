@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.2](https://github.com/st0o0/dotfiles/compare/v0.1.1...v0.1.2) (2026-07-27)
+
+
+### Bug Fixes
+
+* always use main branch for chezmoi init ([0cfde11](https://github.com/st0o0/dotfiles/commit/0cfde1161fcd4d14c114c87b339f095cbd8bc607))
+* use literal TOML strings for starship claude_cost format ([048c6fa](https://github.com/st0o0/dotfiles/commit/048c6fa72a6e5e784800ff5dc3b28f9e66d8fb51))
+
 ## [0.1.1](https://github.com/st0o0/dotfiles/compare/v0.1.0...v0.1.1) (2026-07-27)
 
 
