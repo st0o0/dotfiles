@@ -32,6 +32,23 @@ clh() {
     fi
 }
 
+# Remove stale caches and temp files from $HOME
+tidy() {
+    local -a targets=(
+        "$HOME"/.bash_history-*.tmp
+        "$HOME"/.lesshst
+        "$HOME"/.wget-hsts
+        "$HOME"/.sudo_as_admin_successful
+        "$HOME"/.zcompdump-*
+    )
+    local count=0
+    for f in "${targets[@]}"; do
+        [ -f "$f" ] || continue
+        rm -f "$f" && printf 'removed %s\n' "${f##*/}" && ((count++))
+    done
+    [ "$count" -eq 0 ] && echo "nothing to tidy"
+}
+
 # Kill gpg-agent; it auto-respawns on the next gpg/ssh use at the same
 # socket path (gpgconf --list-dirs agent-ssh-socket, exported above/in
 # .bashrc). Modern equivalent of `gpg-connect-agent killagent /bye`.
