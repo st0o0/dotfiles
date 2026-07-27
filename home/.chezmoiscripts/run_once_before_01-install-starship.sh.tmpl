@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
-set -euo pipefail
 {{ if eq .chezmoi.os "linux" -}}
-mkdir -p "${HOME}/.local/bin"
-SCRIPT="$(curl -sS https://starship.rs/install.sh)" || { echo "error: failed to download starship installer" >&2; exit 1; }
-sh -c "${SCRIPT}" -- -y -b "${HOME}/.local/bin"
+export PATH="${HOME}/.local/bin:${PATH}"
+if ! command -v starship >/dev/null 2>&1; then
+  mkdir -p "${HOME}/.local/bin"
+  if SCRIPT="$(curl -fsSL https://starship.rs/install.sh 2>/dev/null)"; then
+    sh -c "${SCRIPT}" -- -y -b "${HOME}/.local/bin" || echo "warning: starship install failed, skipping" >&2
+  else
+    echo "warning: could not download starship installer, skipping" >&2
+  fi
+fi
 {{ else if eq .chezmoi.os "darwin" -}}
-brew install starship
+command -v starship >/dev/null 2>&1 || brew install starship
 {{ end -}}

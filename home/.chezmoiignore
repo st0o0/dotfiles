@@ -28,6 +28,7 @@ keys.txt
 # On Linux/macOS, ignore Windows-only files
 {{- if ne .chezmoi.os "windows" }}
 .local/bin/dotfiles-shell.ps1
+.local/bin/psmux-statusbar.ps1
 .local/share/starship/windows.toml
 .psmux.conf
 {{- end }}
