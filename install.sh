@@ -37,6 +37,14 @@ esac
 
 log() { printf '==> %s\n' "$1"; }
 
+maybe_sudo() {
+  if [[ "$(id -u)" -eq 0 ]]; then
+    "$@"
+  else
+    sudo "$@"
+  fi
+}
+
 VERSION_FILE="${HOME}/.dotfiles-version"
 
 get_latest_release() {
@@ -125,8 +133,8 @@ if [[ "${PKG_MANAGER}" == "apt" ]]; then
 
   if [[ ${#APT_PKGS[@]} -gt 0 ]]; then
     log "installing apt packages: ${APT_PKGS[*]}"
-    sudo apt-get update -qq
-    sudo apt-get install -y "${APT_PKGS[@]}"
+    maybe_sudo apt-get update -qq
+    maybe_sudo apt-get install -y "${APT_PKGS[@]}"
   fi
 else
   ensure_brew
@@ -155,7 +163,8 @@ if command -v starship >/dev/null 2>&1; then
   log "starship already installed, skipping"
 else
   log "installing starship"
-  curl -sS https://starship.rs/install.sh | sh -s -- -y
+  mkdir -p "${HOME}/.local/bin"
+  curl -sS https://starship.rs/install.sh | sh -s -- -y -b "${HOME}/.local/bin"
 fi
 
 # ── 4. zoxide ────────────────────────────────────────────────────────
@@ -178,7 +187,7 @@ if [[ "${PROFILE}" == "workstation" ]]; then
       brew install --cask kitty
     else
       curl -sL https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin launch=n
-      sudo ln -sf "${HOME}/.local/kitty.app/bin/kitty" /usr/local/bin/kitty
+      maybe_sudo ln -sf "${HOME}/.local/kitty.app/bin/kitty" /usr/local/bin/kitty
     fi
   fi
 fi
@@ -217,12 +226,12 @@ ZSH_PATH="$(command -v zsh)"
 if [[ "${SHELL}" != "${ZSH_PATH}" ]]; then
   log "setting zsh as login shell"
   if ! grep -qx "${ZSH_PATH}" /etc/shells 2>/dev/null; then
-    echo "${ZSH_PATH}" | sudo tee -a /etc/shells >/dev/null
+    echo "${ZSH_PATH}" | maybe_sudo tee -a /etc/shells >/dev/null
   fi
   if [[ "${OS}" == "Darwin" ]]; then
     chsh -s "${ZSH_PATH}"
   else
-    sudo usermod -s "${ZSH_PATH}" "$(id -un)"
+    maybe_sudo usermod -s "${ZSH_PATH}" "$(id -un)"
   fi
 fi
 
