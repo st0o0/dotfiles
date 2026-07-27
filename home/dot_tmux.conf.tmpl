@@ -126,15 +126,15 @@ set -g status-style "bg=#1e1e2e,fg=#cdd6f4"
 
 # Left: session name as a mauve pill
 set -g status-left-length 30
-set -g status-left "#[fg=#cba6f7,bg=default]#[fg=#1e1e2e,bg=#cba6f7,bold] #S #[fg=#cba6f7,bg=#313244]"
+set -g status-left "#[fg=#cba6f7,bg=default]#[fg=#1e1e2e,bg=#cba6f7,bold] #S #[fg=#cba6f7,bg=#313244]"
 
 # Window list — every window is its own pill: muted surface color when
 # inactive, blue when active. The trailing checkmark is set by a Claude
 # Code Stop hook (~/.claude/settings.json) when Claude finishes in a
 # window you're not looking at; cleared once you switch to that window.
 set -g window-status-separator ""
-setw -g window-status-format "#[fg=#a6adc8,bg=#313244] #I:#W#[fg=#a6e3a1]#{?#(test -f /tmp/.claude-tmux-done/#{window_id} && echo 1), ✓,} #{?window_end_flag,#[fg=#313244]#[bg=default],}"
-setw -g window-status-current-format "#[fg=#313244,bg=#fab387]#[fg=#1e1e2e,bg=#fab387,bold] #I:#W #{?window_end_flag,#[fg=#fab387]#[bg=default],#[fg=#fab387]#[bg=#313244]}"
+setw -g window-status-format "#[fg=#a6adc8,bg=#313244] #I:#W#[fg=#a6e3a1]#{?#(test -f /tmp/.claude-tmux-done/#{window_id} && echo 1), ✓,} #{?window_end_flag,#[fg=#313244]#[bg=default],}"
+setw -g window-status-current-format "#[fg=#313244,bg=#fab387]#[fg=#1e1e2e,bg=#fab387,bold] #I:#W #{?window_end_flag,#[fg=#fab387]#[bg=default],#[fg=#fab387]#[bg=#313244]}"
 set-hook -g after-select-window "run-shell \"rm -f /tmp/.claude-tmux-done/#{window_id}\""
 
 # Prefix indicator — a flat profile icon (desktop/server — desktop instead of
@@ -159,9 +159,9 @@ set-hook -g after-select-window "run-shell \"rm -f /tmp/.claude-tmux-done/#{wind
 # #[...] is a style tag, so commas *inside* one leak out and get mistaken for
 # the true/false boundary, corrupting the whole expression.
 {{- if eq .profile "server" }}
-set -g status-right "#[fg=#{?client_prefix,#f38ba8,#b4befe}]#[bg=default]#[fg=#1e1e2e]#[bg=#{?client_prefix,#f38ba8,#b4befe}]#[bold]  #[nobold]#(tmux-statusbar.sh '#{pane_current_path}' '#{client_width}' '#{session_name}' '#{W:#I:#{window_name} }' 'server' '#{?client_prefix,#f38ba8,#b4befe}')"
+set -g status-right "#[fg=#{?client_prefix,#f38ba8,#b4befe}]#[bg=default]#[fg=#1e1e2e]#[bg=#{?client_prefix,#f38ba8,#b4befe}]#[bold]  #[nobold]#(tmux-statusbar.sh '#{pane_current_path}' '#{client_width}' '#{session_name}' '#{W:#I:#{window_name} }' 'server' '#{?client_prefix,#f38ba8,#b4befe}')"
 {{- else }}
-set -g status-right "#[fg=#{?client_prefix,#f38ba8,#b4befe}]#[bg=default]#[fg=#1e1e2e]#[bg=#{?client_prefix,#f38ba8,#b4befe}]#[bold]  #[nobold]#(tmux-statusbar.sh '#{pane_current_path}' '#{client_width}' '#{session_name}' '#{W:#I:#{window_name} }' 'workstation' '#{?client_prefix,#f38ba8,#b4befe}')"
+set -g status-right "#[fg=#{?client_prefix,#f38ba8,#b4befe}]#[bg=default]#[fg=#1e1e2e]#[bg=#{?client_prefix,#f38ba8,#b4befe}]#[bold]  #[nobold]#(tmux-statusbar.sh '#{pane_current_path}' '#{client_width}' '#{session_name}' '#{W:#I:#{window_name} }' 'workstation' '#{?client_prefix,#f38ba8,#b4befe}')"
 {{- end }}
 
 # Right, after the prefix indicator: hostname (only when this tmux server
