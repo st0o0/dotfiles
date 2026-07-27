@@ -8,11 +8,11 @@
 # muscle memory and handy aliases grouped by category. Falls back to plain
 # text if figlet isn't installed, same as the server banner does.
 #
-# Called from .zshrc as: zsh-banner.sh "<prefix key, e.g. C-b>"
+# Called from .zshrc as: zsh-banner.sh "<prefix key, e.g. C-y>"
 
 set -u
 
-PREFIX="${1:-C-b}"
+PREFIX="${1:-C-y}"
 
 # --- Catppuccin Mocha palette ------------------------------------------------
 MAUVE='\e[38;2;203;166;247m'

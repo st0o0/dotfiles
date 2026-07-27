@@ -25,17 +25,16 @@ set -g status off
 set -g default-shell "{{ lookPath "zsh" }}"
 {{- end }}
 
-# Prefix: C-b on workstation (tmux default), C-n on servers. Different keys
-# per profile mean a local tmux session and a nested remote one (auto-started
-# over SSH via .zshrc) never fight over the same prefix — no double-tap
-# send-prefix gymnastics needed to reach the inner session. C-n rather than
-# C-v: C-v is a near-universal paste shortcut, and prefix+n (next-window)
-# is a two-key sequence anyway, so raw C-n being free by tmux default was
-# the deciding factor.
-{{- if eq .profile "server" }}
+# Prefix: C-y on workstation, C-x on servers. Different keys per profile
+# mean a local tmux session and a nested remote one (auto-started over SSH
+# via .zshrc) never fight over the same prefix.
 unbind C-b
-set -g prefix C-n
-bind C-n send-prefix
+{{- if eq .profile "server" }}
+set -g prefix C-x
+bind C-x send-prefix
+{{- else }}
+set -g prefix C-y
+bind C-y send-prefix
 {{- end }}
 
 # Reload config in place (no session/window/pane loss — same tmux server
@@ -93,8 +92,8 @@ bind-key -T copy-mode-vi C-c send-keys -X copy-selection-and-cancel
 # above already fills this buffer, paste works identically everywhere
 # tmux runs. Note: this steals Ctrl-v from any program that wants it
 # directly (e.g. Vim's visual-block mode) — remap that in Vim if needed.
-# Safe to bind unconditionally on both profiles: the prefix key (C-b
-# workstation, C-n server) never overlaps with C-v.
+# Safe to bind unconditionally on both profiles: the prefix key (C-y
+# workstation, C-x server) never overlaps with C-v.
 bind-key -n C-v paste-buffer
 bind-key -T copy-mode MouseDown3Pane send-keys -X copy-selection-and-cancel
 bind-key -T copy-mode-vi MouseDown3Pane send-keys -X copy-selection-and-cancel
@@ -143,7 +142,7 @@ set-hook -g after-select-window "run-shell \"rm -f /tmp/.claude-tmux-done/#{wind
 # go below one full terminal cell), a circled-letter glyph alone (illegible in
 # most terminal fonts), plain bold letter alone (legible but lost the "which
 # profile" context) — landed on icon-only since the profile alone already
-# implies the prefix key (workstation always C-b, server always C-n). It's a
+# implies the prefix key (workstation always C-y, server always C-x). It's a
 # lavender Powerline pill that turns red while the prefix is actually held, for
 # feedback — and it's the first link of the status chain: its colour is handed
 # to tmux-statusbar.sh (last arg) so the script's first capsule seams straight
