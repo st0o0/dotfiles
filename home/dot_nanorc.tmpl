@@ -8,5 +8,7 @@ set constantshow
 set mouse
 
 include "/usr/share/nano/*.nanorc"
+{{- if eq .chezmoi.os "darwin" }}
 include "/opt/homebrew/share/nano/*.nanorc"
 include "/usr/local/share/nano/*.nanorc"
+{{- end }}
