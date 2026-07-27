@@ -238,8 +238,7 @@ fi
 # ── 8. chezmoi init + apply ─────────────────────────────────────────
 
 log "running chezmoi init --apply (${PROFILE} profile)"
-BRANCH="${TARGET_VERSION}"
-chezmoi init --apply --no-tty --promptString "profile=${PROFILE}" --branch "${BRANCH}" "${CHEZMOI_GITHUB_USER}"
+chezmoi init --apply --no-tty --promptString "profile=${PROFILE}" --branch main "${CHEZMOI_GITHUB_USER}"
 
 save_installed_version "${TARGET_VERSION}"
 
