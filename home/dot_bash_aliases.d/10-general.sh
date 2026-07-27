@@ -54,3 +54,13 @@ tidy() {
 # .bashrc). Modern equivalent of `gpg-connect-agent killagent /bye`.
 alias reload='gpgconf --kill gpg-agent'
 
+banner() {
+    if [ -x /usr/local/sbin/homelab-motd ]; then
+        /usr/local/sbin/homelab-motd
+    elif command -v zsh-banner.sh >/dev/null 2>&1; then
+        zsh-banner.sh "${TMUX_PREFIX:-C-b}"
+    else
+        echo "no banner script found"
+    fi
+}
+

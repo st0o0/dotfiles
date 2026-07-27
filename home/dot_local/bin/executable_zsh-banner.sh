@@ -79,6 +79,7 @@ kv 'sync-dotfiles' 'chezmoi update --force'
 kv 'update-omz' 'refresh oh-my-zsh + plugins'
 echo ""
 group_label "general"
+kv 'banner' 'show this banner again'
 kv 'clh' 'clear shell history'
 kv 'tidy' 'remove stale home files'
 kv 'reload' 'restart gpg-agent'
