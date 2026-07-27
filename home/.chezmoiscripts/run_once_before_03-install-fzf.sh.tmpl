@@ -1,17 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 {{ if eq .chezmoi.os "linux" -}}
+export PATH="${HOME}/.local/bin:${PATH}"
 if ! command -v fzf >/dev/null 2>&1; then
   mkdir -p "${HOME}/.local/bin"
-  TAG="$(curl -sSL https://api.github.com/repos/junegunn/fzf/releases/latest 2>/dev/null \
-    | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p')"
+  TAG="$(curl -fsSL https://api.github.com/repos/junegunn/fzf/releases/latest 2>/dev/null \
+    | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p')" || true
   if [ -n "${TAG}" ]; then
     V="${TAG#v}"
     ARCH="$(uname -m)"; case "$ARCH" in x86_64) ARCH=amd64;; aarch64) ARCH=arm64;; esac
-    curl -fsSL "https://github.com/junegunn/fzf/releases/download/${TAG}/fzf-${V}-linux_${ARCH}.tar.gz" \
-      | tar xzf - -C "${HOME}/.local/bin" fzf
+    if ! curl -fsSL "https://github.com/junegunn/fzf/releases/download/${TAG}/fzf-${V}-linux_${ARCH}.tar.gz" \
+      | tar xzf - -C "${HOME}/.local/bin" fzf; then
+      echo "warning: fzf download failed, skipping" >&2
+    fi
   else
-    echo "warning: could not determine fzf version, skipping" >&2
+    echo "warning: could not determine fzf version (API rate-limited?), skipping" >&2
   fi
 fi
 {{ else if eq .chezmoi.os "darwin" -}}
