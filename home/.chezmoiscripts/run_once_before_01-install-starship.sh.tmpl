@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+{{ if eq .chezmoi.os "linux" -}}
+mkdir -p "${HOME}/.local/bin"
+SCRIPT="$(curl -sS https://starship.rs/install.sh)" || { echo "error: failed to download starship installer" >&2; exit 1; }
+sh -c "${SCRIPT}" -- -y -b "${HOME}/.local/bin"
+{{ else if eq .chezmoi.os "darwin" -}}
+brew install starship
+{{ end -}}

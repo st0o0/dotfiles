@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+{{ if eq .chezmoi.os "linux" -}}
+mkdir -p "${HOME}/.local/bin"
+SCRIPT="$(curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh)" || { echo "error: failed to download zoxide installer" >&2; exit 1; }
+sh -c "${SCRIPT}"
+{{ else if eq .chezmoi.os "darwin" -}}
+brew install zoxide
+{{ end -}}
