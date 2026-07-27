@@ -11,6 +11,8 @@ set -g history-limit 10000
 set -sg escape-time 10
 set -s set-clipboard on
 set -g status off
+unbind C-b
+set -g prefix None
 {{- else }}
 
 # tmux's default-shell is normally whatever $SHELL was in the environment
