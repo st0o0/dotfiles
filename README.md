@@ -27,16 +27,15 @@ irm https://raw.githubusercontent.com/st0o0/dotfiles/main/install.ps1 | iex
 
 ### Profiles
 
-Linux/macOS supports two profiles:
+Linux/macOS supports three profiles:
 
 - **workstation** (default): Full setup with kitty, Nerd Font, extra aliases
 - **server**: Minimal setup, different tmux prefix (C-n)
+- **devcontainer**: Invisible tmux (scroll only, no status bar, no keybindings)
 
 ```bash
-# Standalone
 ./install.sh --profile server
-
-# Via Ansible (pre-seeds chezmoi config, no install.sh needed)
+./install.sh --profile devcontainer
 ```
 
 ### What happens
