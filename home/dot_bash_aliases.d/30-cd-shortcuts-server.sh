@@ -20,10 +20,14 @@ if [ -n "$BASH_VERSION" ]; then
     }
     complete -F _cdd_complete cdd
 elif [ -n "$ZSH_VERSION" ]; then
+    # eval hides zsh glob qualifiers from bash's parser, which chokes on
+    # the (N:t) syntax even inside a branch it won't execute.
+    eval '
     _cdd_complete() {
         local -a stacks
         stacks=(/docker/*(N:t))
-        _describe 'stack' stacks
+        _describe '\''stack'\'' stacks
     }
     compdef _cdd_complete cdd
+    '
 fi
