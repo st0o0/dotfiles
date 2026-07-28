@@ -94,6 +94,20 @@ fi
 # just completions (reads justfile in cwd at completion time)
 if command -v just >/dev/null 2>&1; then
     eval "$(just --completions zsh)"
+{{- if eq .profile "devcontainer" }}
+    if [ -f "$HOME/.ssh/config" ]; then
+        _just_with_hosts() {
+            if (( CURRENT >= 3 )); then
+                local -a hosts
+                hosts=(${(f)"$(command grep -i '^Host ' "$HOME/.ssh/config" 2>/dev/null \
+                    | awk '{for(i=2;i<=NF;i++) if($i !~ /[*?]/) print $i}')"})
+                (( ${#hosts} )) && _describe 'host' hosts
+            fi
+            _just "$@"
+        }
+        compdef _just_with_hosts just
+    fi
+{{- end }}
 fi
 
 # chezmoi completions
