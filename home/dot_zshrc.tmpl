@@ -41,6 +41,7 @@ plugins=(
     git
     docker
     docker-compose
+    ansible
     sudo
     colored-man-pages
     fzf-tab
@@ -83,6 +84,21 @@ fi
 # zoxide: frecency-based `cd` replacement (`z <fuzzy dir>`)
 if command -v zoxide >/dev/null 2>&1; then
     eval "$(zoxide init zsh)"
+fi
+
+# Bitwarden CLI completions
+if command -v bw >/dev/null 2>&1; then
+    eval "$(bw completion --shell zsh); compdef _bw bw;"
+fi
+
+# just completions (reads justfile in cwd at completion time)
+if command -v just >/dev/null 2>&1; then
+    eval "$(just --completions zsh)"
+fi
+
+# chezmoi completions
+if command -v chezmoi >/dev/null 2>&1; then
+    eval "$(chezmoi completion zsh)"
 fi
 
 if [ -n "$TMUX" ] \
