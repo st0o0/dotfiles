@@ -101,9 +101,9 @@ if command -v just >/dev/null 2>&1; then
                 local -a hosts
                 hosts=(${(f)"$(command grep -i '^Host ' "$HOME/.ssh/config" 2>/dev/null \
                     | awk '{for(i=2;i<=NF;i++) if($i !~ /[*?]/) print $i}')"})
-                (( ${#hosts} )) && _describe 'host' hosts
+                (( ${#hosts} )) && compadd -a hosts
             fi
-            _just "$@"
+            _clap_dynamic_completer_just "$@"
         }
         compdef _just_with_hosts just
     fi
