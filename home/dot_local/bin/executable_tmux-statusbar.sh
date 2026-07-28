@@ -5,9 +5,10 @@
 #     '#{session_name}' '#{W:#I:#{window_name} }' 'workstation|server' 'PREFIXCOLOR')"
 #
 # Interlocking chain of Powerline capsules. Every segment has a fixed static
-# fill colour and dark (BASE) text (host = red, git = green, dir = peach,
-# load = mauve, uptime = yellow, battery = pink, date = blue, time =
-# lavender) — the fill names *what* the segment is. Git's working-tree status is folded into the
+# fill colour and dark (BASE) text (git = green, dir = peach,
+# load = mauve, uptime = yellow, net = red/yellow, battery = pink,
+# date = blue, time = lavender) — the fill names *what* the segment is.
+# Network segments only appear when degraded. Git's working-tree status is folded into the
 # green git capsule as compact symbols (+ staged, ! modified, ? untracked,
 # ⇡/⇣ ahead/behind) in the same dark text colour as the branch. No segment
 # breaks the chain, so every capsule seams cleanly into its neighbour; adjacent
@@ -52,7 +53,6 @@ CAP_JOIN=$(printf '')
 CAP_OPEN=$(printf '')
 CAP_CLOSE=$(printf '')
 
-ICON_HOST=$(printf '')     # nf-fa-server
 ICON_GIT=$(printf '')      # pl-branch
 ICON_DIR=$(printf '')      # nf-fa-folder
 ICON_LOAD=$(printf '')     # nf-fa-tachometer
@@ -73,11 +73,6 @@ push() {
     all_segments+=("${seq}:${1}:${2}:${3}:${4}")
     seq=$(( seq + 1 ))
 }
-
-# Hostname — only when this tmux server was started inside an SSH session.
-if [ -n "${SSH_CONNECTION:-}" ]; then
-    push 60 "$RED" "" "${ICON_HOST} $(hostname -s)"
-fi
 
 # Git branch (inside a repo). The capsule stays green; working-tree status is
 # folded in as compact symbols in the same dark text colour as the branch
@@ -117,6 +112,21 @@ if [ "$PROFILE" = "server" ] && [ -r /proc/uptime ]; then
         else printf "%dm", m;
     }')
     push 20 "$YELLOW" "" "${ICON_UPTIME} ${uptime_str}"
+fi
+
+# Network: offline warning (instant route-table check) or packet loss
+# (async: reads previous ping result, kicks off a new one in background).
+# Invisible when connectivity is fine.
+PING_CACHE="/tmp/.tmux-ping"
+if command -v ip >/dev/null 2>&1 && ! ip route show default 2>/dev/null | grep -q .; then
+    push 80 "$RED" "" "⚠ offline"
+else
+    if [ -f "$PING_CACHE" ] && [ "$(cat "$PING_CACHE" 2>/dev/null)" = "loss" ]; then
+        push 75 "$YELLOW" "" "⚠ loss"
+    fi
+    if command -v ping >/dev/null 2>&1; then
+        (ping -c1 -W2 1.1.1.1 >/dev/null 2>&1 && printf ok || printf loss) > "$PING_CACHE" 2>/dev/null &
+    fi
 fi
 
 # Battery, if present. Pink capsule, dark text, fixed icon.
