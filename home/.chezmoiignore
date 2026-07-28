@@ -46,3 +46,6 @@ keys.txt
 .bash_aliases.d/20-docker.sh
 .bash_aliases.d/30-cd-shortcuts-server.sh
 {{- end }}
+{{- if ne .profile "devcontainer" }}
+.bash_aliases.d/45-devcontainer.sh
+{{- end }}
