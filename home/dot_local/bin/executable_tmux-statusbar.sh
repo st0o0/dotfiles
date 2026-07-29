@@ -124,9 +124,8 @@ else
     if [ -f "$PING_CACHE" ] && [ "$(cat "$PING_CACHE" 2>/dev/null)" = "loss" ]; then
         push 75 "$YELLOW" "" "⚠ loss"
     fi
-    if command -v ping >/dev/null 2>&1; then
-        (ping -c1 -W2 1.1.1.1 >/dev/null 2>&1 && printf ok || printf loss) > "$PING_CACHE" 2>/dev/null &
-    fi
+    # TCP connect to 1.1.1.1:53 (DNS) — works without CAP_NET_RAW unlike ping.
+    (timeout 2 bash -c ': </dev/tcp/1.1.1.1/53' 2>/dev/null && printf ok || printf loss) > "$PING_CACHE" 2>/dev/null &
 fi
 
 # Battery, if present. Pink capsule, dark text, fixed icon.
