@@ -29,9 +29,9 @@ irm https://raw.githubusercontent.com/st0o0/dotfiles/main/install.ps1 | iex
 
 Linux/macOS supports three profiles:
 
-- **workstation** (default): Full setup with kitty, Nerd Font, extra aliases
-- **server**: Minimal setup, different tmux prefix (C-n)
-- **devcontainer**: Invisible tmux (scroll only, no status bar, no keybindings)
+- **workstation** (default): Full setup with kitty, Nerd Font, extra aliases, tmux prefix `C-Space`
+- **server**: Minimal setup, default tmux prefix `C-b`
+- **devcontainer**: tmux prefix `C-y`, status bar, mouse/clipboard support
 
 ```bash
 ./install.sh --profile server

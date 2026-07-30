@@ -4,6 +4,7 @@ alias ll='ls -lah'
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
+alias x='exit'
 
 alias grep='grep --color=auto'
 if ls --color=auto / >/dev/null 2>&1; then

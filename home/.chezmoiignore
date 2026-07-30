@@ -39,7 +39,6 @@ keys.txt
 .config/kitty/**
 {{- end }}
 {{- if eq .profile "devcontainer" }}
-.local/bin/tmux-statusbar.sh
 .local/bin/zsh-banner.sh
 {{- end }}
 {{- if eq .profile "workstation" }}

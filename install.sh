@@ -8,7 +8,7 @@
 # Usage:
 #   ./install.sh                          # workstation (default)
 #   ./install.sh --profile server         # server (no kitty/fzf/font)
-#   ./install.sh --profile devcontainer   # devcontainer (no status bar, no keybindings)
+#   ./install.sh --profile devcontainer   # devcontainer (prefix C-y)
 #   curl -fsLS https://raw.githubusercontent.com/st0o0/dotfiles/main/install.sh | bash
 #   curl -fsLS https://raw.githubusercontent.com/st0o0/dotfiles/main/install.sh | bash -s -- --profile server
 
