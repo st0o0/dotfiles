@@ -6,13 +6,31 @@
 set -g mouse on
 set -g default-terminal "tmux-256color"
 set -sa terminal-overrides ",*:Tc"
-set -as terminal-features ",xterm*:mouse"
+set -as terminal-features ",xterm*:mouse:clipboard"
 set -g history-limit 10000
 set -sg escape-time 10
 set -s set-clipboard on
-set -g status off
 unbind C-b
-set -g prefix None
+set -g prefix C-y
+bind C-y send-prefix
+
+# ── Status bar — same Catppuccin Mocha capsule style as workstation/server
+# (see the full palette/theme comment in the shared block below). Mode pill:
+# copy-mode shows "COPY", prefix-held/normal just switch pill color (red/
+# lavender), same as workstation/server — no icon text either.
+set -g status-position bottom
+set -g status-interval 5
+set -g status-style "bg=#1e1e2e,fg=#cdd6f4"
+
+set -g status-left-length 50
+set -g status-left "#[fg=#cba6f7,bg=default]#[fg=#1e1e2e,bg=#cba6f7,bold] #S #[fg=#cba6f7,bg=#313244]"
+
+set -g window-status-separator ""
+setw -g window-status-format "#[fg=#a6adc8,bg=#313244] #I:#W #{?window_end_flag,#[fg=#313244]#[bg=default],}"
+setw -g window-status-current-format "#[fg=#313244,bg=#fab387]#[fg=#1e1e2e,bg=#fab387,bold] #I:#W #{?window_end_flag,#[fg=#fab387]#[bg=default],#[fg=#fab387]#[bg=#313244]}"
+
+set -g status-right "#[fg=#{?pane_in_mode,#f9e2af,#{?client_prefix,#f38ba8,#b4befe}}]#[bg=default]#[fg=#1e1e2e]#[bg=#{?pane_in_mode,#f9e2af,#{?client_prefix,#f38ba8,#b4befe}}]#[bold] #{?pane_in_mode,COPY,} #[nobold]#(tmux-statusbar.sh '#{pane_current_path}' '#{client_width}' '#{session_name}' '#{W:#I:#{window_name} }' 'devcontainer' '#{?pane_in_mode,#f9e2af,#{?client_prefix,#f38ba8,#b4befe}}')"
+set -g status-right-length 150
 {{- else }}
 
 # tmux's default-shell is normally whatever $SHELL was in the environment
