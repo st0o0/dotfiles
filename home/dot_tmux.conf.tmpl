@@ -4,6 +4,8 @@
 {{- if eq .profile "devcontainer" }}
 # ── Devcontainer: invisible tmux — scroll support only, no UI chrome ────────
 set -g mouse on
+set -g base-index 1
+setw -g pane-base-index 1
 set -g default-terminal "tmux-256color"
 set -sa terminal-overrides ",*:Tc"
 set -as terminal-features ",xterm*:mouse:clipboard"
