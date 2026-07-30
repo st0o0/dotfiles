@@ -29,7 +29,7 @@ set -g window-status-separator ""
 setw -g window-status-format "#[fg=#a6adc8,bg=#313244] #I:#W #{?window_end_flag,#[fg=#313244]#[bg=default],}"
 setw -g window-status-current-format "#[fg=#313244,bg=#fab387]#[fg=#1e1e2e,bg=#fab387,bold] #I:#W #{?window_end_flag,#[fg=#fab387]#[bg=default],#[fg=#fab387]#[bg=#313244]}"
 
-set -g status-right "#[fg=#{?pane_in_mode,#f9e2af,#{?client_prefix,#f38ba8,#b4befe}}]#[bg=default]#[fg=#1e1e2e]#[bg=#{?pane_in_mode,#f9e2af,#{?client_prefix,#f38ba8,#b4befe}}]#[bold] #{?pane_in_mode,COPY,} #[nobold]#(tmux-statusbar.sh '#{pane_current_path}' '#{client_width}' '#{session_name}' '#{W:#I:#{window_name} }' 'devcontainer' '#{?pane_in_mode,#f9e2af,#{?client_prefix,#f38ba8,#b4befe}}')"
+set -g status-right "#[fg=#{?pane_in_mode,#f9e2af,#{?client_prefix,#f38ba8,#b4befe}}]#[bg=default]#[fg=#1e1e2e]#[bg=#{?pane_in_mode,#f9e2af,#{?client_prefix,#f38ba8,#b4befe}}]#[bold] #{?pane_in_mode,COPY,} #[nobold]#($HOME/.local/bin/tmux-statusbar.sh '#{pane_current_path}' '#{client_width}' '#{session_name}' '#{W:#I:#{window_name} }' 'devcontainer' '#{?pane_in_mode,#f9e2af,#{?client_prefix,#f38ba8,#b4befe}}')"
 set -g status-right-length 150
 {{- else }}
 
@@ -164,15 +164,18 @@ setw -g window-status-current-format "#[fg=#313244,bg=#fab387]#[fg=#1e1e2e,bg
 # Each color/attribute uses nested #{?pane_in_mode,...,#{?client_prefix,...}}
 # inside single-attribute #[...] tags to avoid the comma-splitting bug.
 {{- if eq .profile "server" }}
-set -g status-right "#[fg=#{?pane_in_mode,#f9e2af,#{?client_prefix,#f38ba8,#b4befe}}]#[bg=default]#[fg=#1e1e2e]#[bg=#{?pane_in_mode,#f9e2af,#{?client_prefix,#f38ba8,#b4befe}}]#[bold] #{?pane_in_mode,COPY,} #[nobold]#(tmux-statusbar.sh '#{pane_current_path}' '#{client_width}' '#{session_name}' '#{W:#I:#{window_name} }' 'server' '#{?pane_in_mode,#f9e2af,#{?client_prefix,#f38ba8,#b4befe}}')"
+set -g status-right "#[fg=#{?pane_in_mode,#f9e2af,#{?client_prefix,#f38ba8,#b4befe}}]#[bg=default]#[fg=#1e1e2e]#[bg=#{?pane_in_mode,#f9e2af,#{?client_prefix,#f38ba8,#b4befe}}]#[bold] #{?pane_in_mode,COPY,} #[nobold]#($HOME/.local/bin/tmux-statusbar.sh '#{pane_current_path}' '#{client_width}' '#{session_name}' '#{W:#I:#{window_name} }' 'server' '#{?pane_in_mode,#f9e2af,#{?client_prefix,#f38ba8,#b4befe}}')"
 {{- else }}
-set -g status-right "#[fg=#{?pane_in_mode,#f9e2af,#{?client_prefix,#f38ba8,#b4befe}}]#[bg=default]#[fg=#1e1e2e]#[bg=#{?pane_in_mode,#f9e2af,#{?client_prefix,#f38ba8,#b4befe}}]#[bold] #{?pane_in_mode,COPY,} #[nobold]#(tmux-statusbar.sh '#{pane_current_path}' '#{client_width}' '#{session_name}' '#{W:#I:#{window_name} }' 'workstation' '#{?pane_in_mode,#f9e2af,#{?client_prefix,#f38ba8,#b4befe}}')"
+set -g status-right "#[fg=#{?pane_in_mode,#f9e2af,#{?client_prefix,#f38ba8,#b4befe}}]#[bg=default]#[fg=#1e1e2e]#[bg=#{?pane_in_mode,#f9e2af,#{?client_prefix,#f38ba8,#b4befe}}]#[bold] #{?pane_in_mode,COPY,} #[nobold]#($HOME/.local/bin/tmux-statusbar.sh '#{pane_current_path}' '#{client_width}' '#{session_name}' '#{W:#I:#{window_name} }' 'workstation' '#{?pane_in_mode,#f9e2af,#{?client_prefix,#f38ba8,#b4befe}}')"
 {{- end }}
 
 # Right, after the mode pill: git branch → cwd → load average →
 # uptime (server only) → network warnings (only when degraded) →
 # battery (if present) → date (workstation only) → time, rendered by
-# tmux-statusbar.sh (must be on PATH — installed to ~/.local/bin) as
-# static-colour Powerline capsules.
+# tmux-statusbar.sh, called by full path (~/.local/bin) rather than relying
+# on PATH — the tmux server's environment is fixed at whenever it first
+# started, which on some setups (e.g. a system-rc autostart snippet that
+# execs into tmux before the user's shell rc has extended PATH) never
+# includes ~/.local/bin — as static-colour Powerline capsules.
 set -g status-right-length 150
 {{- end }}
