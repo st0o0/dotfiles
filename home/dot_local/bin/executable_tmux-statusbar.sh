@@ -61,6 +61,7 @@ ICON_UPTIME=$(printf '')   # nf-fa-history
 ICON_CAL=$(printf '')      # nf-fa-calendar
 ICON_CLOCK=$(printf '')    # nf-fa-clock
 ICON_BAT=$(printf '')      # nf-fa-battery_full
+ICON_CONTAINER=$(printf '\xef\x8c\x88')  # nf-linux-docker (U+F308)
 
 # Each entry is "seq:priority:fill:textcolor:text":
 #   priority 999 = never drop (dir, time); lower = droppable, lowest first.
@@ -90,9 +91,15 @@ if [ -n "$branch" ]; then
     push 90 "$GREEN" "" "$git_text"
 fi
 
-# Current directory (basename only). Mandatory.
-dir=$(basename "$PANE_PATH")
-push 999 "$PEACH" "" "${ICON_DIR} ${dir}"
+# Current directory (basename only) — except devcontainer, where the path
+# is usually irrelevant (one workspace, always the same mount); show a
+# container icon instead. Mandatory segment either way.
+if [ "$PROFILE" = "devcontainer" ]; then
+    push 999 "$PEACH" "" "${ICON_CONTAINER}"
+else
+    dir=$(basename "$PANE_PATH")
+    push 999 "$PEACH" "" "${ICON_DIR} ${dir}"
+fi
 
 # Load average (1-minute) — not on devcontainer (usually the host's load,
 # not the container's, so it's misleading in there). Mauve capsule.
