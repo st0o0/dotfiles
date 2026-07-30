@@ -17,7 +17,8 @@
 # Segments that don't apply on the current host are skipped automatically
 # (no battery on a headless server, no git branch outside a repo). A few are
 # gated on $PROFILE (baked in statically by tmux.conf.tmpl at chezmoi-render
-# time): uptime is server-only, date is workstation-only.
+# time): uptime is server-only, date is workstation-only, load average is
+# skipped on devcontainer (would show the host's load, not the container's).
 #
 # Optional segments (everything except dir/time) are dropped lowest-priority
 # first when the terminal is too narrow — see the budget logic below.
@@ -93,8 +94,9 @@ fi
 dir=$(basename "$PANE_PATH")
 push 999 "$PEACH" "" "${ICON_DIR} ${dir}"
 
-# Load average (1-minute). Mauve capsule, dark text.
-if [ -r /proc/loadavg ]; then
+# Load average (1-minute) — not on devcontainer (usually the host's load,
+# not the container's, so it's misleading in there). Mauve capsule.
+if [ "$PROFILE" != "devcontainer" ] && [ -r /proc/loadavg ]; then
     load1=$(cut -d' ' -f1 /proc/loadavg)
     push 50 "$MAUVE" "" "${ICON_LOAD} ${load1}"
 fi
@@ -138,7 +140,7 @@ if [ -n "$bat_path" ] && [ -f "$bat_path/capacity" ]; then
 fi
 
 # Date — workstation-only. Blue capsule, dark text.
-if [ "$PROFILE" != "server" ]; then
+if [ "$PROFILE" != "server" ] && [ "$PROFILE" != "devcontainer" ]; then
     push 30 "$BLUE" "" "${ICON_CAL} $(date '+%d.%m.')"
 fi
 
