@@ -68,6 +68,10 @@ bind r source-file ~/.tmux.conf \; display-message "tmux.conf reloaded"
 # prefix+C = new named session (prefix+c = new window, prefix+s = session list)
 bind C command-prompt -p "New session:" "new-session -s '%%'"
 
+# Enter copy-mode with Home instead of PgUp
+unbind -n PPage
+bind -n Home copy-mode
+
 set -g mouse on
 set -g focus-events on
 set -g mode-keys vi
